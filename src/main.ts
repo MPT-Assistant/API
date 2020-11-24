@@ -50,9 +50,22 @@ const internal = {
 
 server.register(require("fastify-cors"), {});
 
+server.addHook("preHandler", async (request, reply, next) => {
+	//@ts-ignore
+	if (!request.body || !req.body.signature) {
+		return;
+	} else {
+		//@ts-ignore
+		if (internal.checkSignature(request.body.signature) === false) {
+			return;
+		} else {
+			next();
+		}
+	}
+});
+
 server.post("/getUserInfo", async (request, reply) => {
 	//@ts-ignore
-	return internal.checkSignature(request.body.signature);
 });
 
 (async function scriptStart() {
