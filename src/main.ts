@@ -65,7 +65,9 @@ server.addHook("preHandler", async (request, reply, next) => {
 });
 
 server.post("/getUserInfo", async (request, reply) => {
-	//@ts-ignore
+	return {
+		hello: "world",
+	};
 });
 
 (async function scriptStart() {
