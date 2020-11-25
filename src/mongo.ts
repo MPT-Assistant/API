@@ -69,9 +69,4 @@ const replacement = typedModel(
 );
 const utilityGroup = typedModel("utility_group", utilityGroupScheme, `groups`);
 
-export = {
-	user,
-	specialty,
-	replacement,
-	utilityGroup,
-};
+export { user, specialty, replacement, utilityGroup };

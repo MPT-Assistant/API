@@ -5,9 +5,9 @@ import mongoose from "mongoose";
 import fs from "fs";
 import qs from "querystring";
 import crypto from "crypto";
+import * as mongoData from "./mongo";
 
 const server = fastify({
-	http2: true,
 	https: {
 		key: fs.readFileSync(
 			"/etc/letsencrypt/live/mpt.rus-anonym.wtf/privkey.pem",
@@ -50,31 +50,37 @@ const internal = {
 
 server.register(require("fastify-cors"), {});
 
-server.addHook("preHandler", async (request, reply, next) => {
+server.get(`/`, async (request, reply) => {
+	return reply.send({ mpt: "shit" });
+});
+
+server.post("/getUserInfo", async (request, reply) => {
+	if (!request.body) {
+		return reply.send({ error: 1 });
+	}
 	//@ts-ignore
-	if (!request.body || !req.body.signature) {
-		return;
+	if (internal.checkSignature(request.body.signature) === false) {
+		return reply.send({ error: 2 });
 	} else {
 		//@ts-ignore
-		if (internal.checkSignature(request.body.signature) === false) {
-			return;
+		let userData = await mongoData.user.findOne({ vk_id: request.body.vk_id });
+		if (!userData) {
+			return reply.send({
+				error: 3,
+			});
 		} else {
-			next();
+			return reply.send({
+				user: userData.toJSON(),
+			});
 		}
 	}
 });
 
-server.post("/getUserInfo", async (request, reply) => {
-	return {
-		hello: "world",
-	};
-});
-
 (async function scriptStart() {
-	await mongoose.connect(config.mongoDB, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-	});
+	// await mongoose.connect(config.mongoDB, {
+	// 	useNewUrlParser: true,
+	// 	useUnifiedTopology: true,
+	// });
 	server.listen(443, "0.0.0.0", (err, address) => {
 		if (err) {
 			console.error(err);
