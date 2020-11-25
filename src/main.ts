@@ -69,18 +69,30 @@ server.post("/getUserInfo", async (request, reply) => {
 				error: 3,
 			});
 		} else {
+			let userGroup = await mongoData.utilityGroup.findOne({
+				//@ts-ignore
+				uid: userData.data.unical_group_id,
+			});
 			return reply.send({
-				user: userData.toJSON(),
+				user: {
+					ban: userData.ban,
+					nickname: userData.nickname,
+					regData: userData.reg_date,
+					lesson_notices: userData.data.lesson_notices,
+					replacement_notices: userData.data.replacement_notices,
+					mailing: userData.data.mailing,
+				},
+				group: userGroup.toJSON() || null,
 			});
 		}
 	}
 });
 
 (async function scriptStart() {
-	// await mongoose.connect(config.mongoDB, {
-	// 	useNewUrlParser: true,
-	// 	useUnifiedTopology: true,
-	// });
+	await mongoose.connect(config.mongoDB, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	});
 	server.listen(443, "0.0.0.0", (err, address) => {
 		if (err) {
 			console.error(err);
