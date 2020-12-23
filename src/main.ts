@@ -54,7 +54,22 @@ server.get(`/`, async (request, reply) => {
 	return reply.send({ mpt: "shit" });
 });
 
-server.post("/getUserInfo", async (request, reply) => {
+server.route({
+	method: ["GET", "POST"],
+	url: "/get",
+	schema: {
+		querystring: {
+			token: {
+				type: "string",
+			},
+		},
+	},
+	handler: async function (request, reply) {
+		console.log(request);
+	},
+});
+
+server.post("/MiniApp/getUserInfo", async (request, reply) => {
 	if (!request.body) {
 		return reply.send({ error: 1 });
 	}
