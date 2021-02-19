@@ -18,4 +18,20 @@ type Specialty = {
 	groups: Group[];
 };
 
-export { Lesson, Group, Specialty };
+type ParsedSchedule = Array<{
+	name: string;
+	groups: Array<{
+		name: string;
+		days: Array<{
+			num: number;
+			name: string;
+			lessons: Array<{
+				num: number;
+				name: [string, string?];
+				teacher: [string, string?];
+			}>;
+		}>;
+	}>;
+}>;
+
+export { Lesson, Group, Specialty, ParsedSchedule };
