@@ -18,13 +18,32 @@ async function parseLessons() {
 		const SelectedSpecialty = $(specialtyElement).children();
 		const Specialty: string = ((SelectedSpecialty[0].children[0] as any)
 			.data as string).replace("Расписание занятий для ", "");
-		const SpecialtyID = $(specialtyElement).attr("id");
+		// const SpecialtyID = $(specialtyElement).attr("id");
 
 		$(SelectedSpecialty[1])
 			.children()
-			.each(async function (_groupIndex, groupElement) {
+			.each(function (_groupIndex, groupElement) {
 				const SelectedGroup = $($(groupElement).children()[0]);
 				const GroupID = SelectedGroup.attr("aria-controls");
+				const SelectedGroupLessons = $(SelectedSpecialty[2]).find(
+					"#" + GroupID,
+				);
+				const GroupNames = ((SelectedGroupLessons.children()[0]
+					.children[0] as any).data as string)
+					.replace("Группа ", "")
+					.split(", ");
+				for (const GroupName of GroupNames) {
+					console.log(GroupName);
+					$(SelectedGroupLessons.children()[1])
+						.children()
+						.each(function (_dayIndex, dayElement) {
+							const SelectedDay = $(dayElement);
+							if (SelectedDay.prop("name") === "thead") {
+								console.log(SelectedDay);
+								process.exit();
+							}
+						});
+				}
 			});
 	});
 	// return ArrayWithAllFlow;
