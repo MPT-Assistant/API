@@ -1,3 +1,5 @@
+type Week = "Знаменатель" | "Числитель" | "Не определено";
+
 type Lesson = {
 	num: number;
 	name: [string, string | null];
@@ -35,4 +37,4 @@ type ParsedSchedule = Array<{
 	}>;
 }>;
 
-export { Lesson, Group, Specialty, ParsedSchedule };
+export { Lesson, Group, Specialty, ParsedSchedule, Week };

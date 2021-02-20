@@ -1,6 +1,6 @@
 import axios from "axios";
 import cheerio from "cheerio";
-import { ParsedSchedule } from "../../types/mpt";
+import { ParsedSchedule, Week } from "../../types/mpt";
 
 function getDayNum(day: string) {
 	const days = [
@@ -16,16 +16,20 @@ function getDayNum(day: string) {
 	return days.findIndex((x) => x.test(day) === true) || 0;
 }
 
-async function parseLessons(): Promise<ParsedSchedule> {
-	const LessonsHTML = (
-		await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
-			headers: {
-				cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
-					.join((Math.random().toString(36) + "00000000000000000").slice(2, 18))
-					.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
-			},
-		})
-	).data;
+async function parseLessons(InputHTML?: string): Promise<ParsedSchedule> {
+	const LessonsHTML =
+		InputHTML ||
+		(
+			await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
+				headers: {
+					cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
+						.join(
+							(Math.random().toString(36) + "00000000000000000").slice(2, 18),
+						)
+						.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
+				},
+			})
+		).data;
 	const $ = cheerio.load(LessonsHTML);
 	const ArrayWithAllFlow = $(
 		`body > div.page > main > div > div > div:nth-child(3) > div.col-xs-12.col-sm-12.col-md-7.col-md-pull-5 > div.tab-content`,
@@ -167,4 +171,37 @@ async function parseLessons(): Promise<ParsedSchedule> {
 
 // async function parseReplacements() {}
 
-export { parseLessons };
+async function getCurrentWeek(InputHTML?: string): Promise<Week> {
+	const LessonsHTML =
+		InputHTML ||
+		(
+			await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
+				headers: {
+					cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
+						.join(
+							(Math.random().toString(36) + "00000000000000000").slice(2, 18),
+						)
+						.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
+				},
+			})
+		).data;
+	const $ = cheerio.load(LessonsHTML);
+	const ParsedWeek = $(
+		$(
+			$(
+				"body > div.page > main > div > div > div:nth-child(3) > div.col-xs-12.col-sm-12.col-md-7.col-md-pull-5",
+			).children()[1],
+		)[0],
+	)
+		.text()
+		.trim();
+	if (ParsedWeek === "Знаменатель") {
+		return ParsedWeek;
+	} else if (ParsedWeek === "Числитель") {
+		return ParsedWeek;
+	} else {
+		return "Не определено";
+	}
+}
+
+export { parseLessons, getCurrentWeek };
