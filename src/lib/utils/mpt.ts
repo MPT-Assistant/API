@@ -2,11 +2,27 @@ import axios from "axios";
 import cheerio from "cheerio";
 import { ParsedSchedule } from "../../types/mpt";
 
+function getDayNum(day: string) {
+	const days = [
+		/воскресенье/gi,
+		/понедельник/gi,
+		/вторник/gi,
+		/среда/gi,
+		/четверг/gi,
+		/пятница/gi,
+		/суббота/gi,
+	];
+
+	return days.findIndex((x) => x.test(day) === true) || 0;
+}
+
 async function parseLessons(): Promise<ParsedSchedule> {
 	const LessonsHTML = (
 		await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
 			headers: {
-				cookie: "PHPSESSID=MPT_Assistant;", // Bypassing an error bad request
+				cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
+					.join((Math.random().toString(36) + "00000000000000000").slice(2, 18))
+					.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
 			},
 		})
 	).data;
@@ -59,50 +75,85 @@ async function parseLessons(): Promise<ParsedSchedule> {
 						.each(function (_dayIndex, dayElement) {
 							const SelectedDay = $(dayElement);
 							if (SelectedDay.prop("name") === "thead") {
-								const DayName = $(
-									$(SelectedDay.children()[0].children[0]).children()[0],
-								).text();
+								let DayName: string;
+								let Place: string;
+								Place = $(
+									$(
+										$(
+											$($(SelectedDay.children()[0]).children()[0]),
+										).children()[0],
+									).children()[0],
+								)
+									.text()
+									.trim();
+
+								DayName = $(
+									$(
+										$(
+											$($(SelectedDay.children()[0]).children()[0]),
+										).children()[0],
+									),
+								)
+									.text()
+									.replace(Place, "")
+									.trim();
+
+								Place = Place.replace(/\(|\)/gi, "");
+								Place === "" ? (Place = "Не указано") : null;
+
+								DayName = DayName[0] + DayName.slice(1).toLowerCase();
+
 								const DayLessons = SelectedDay.next();
 								const CurrentDay =
 									CurrentGroup.days[
 										CurrentGroup.days.push({
-											num: 0,
+											num: getDayNum(DayName),
+											place: Place,
 											name: DayName,
 											lessons: [],
 										}) - 1
 									];
+
 								DayLessons.children().each(function (
 									_lessonIndex,
 									lessonElement,
 								) {
 									if (_lessonIndex !== 0) {
 										const SelectedLesson = $(lessonElement).children();
-										// console.log(SelectedLesson.children().length);
-										const LessonNum = $(SelectedLesson[0]).text();
-										let LessonName: [string, string?];
-										let LessonTeacher: [string, string?];
-										if ($(SelectedLesson[1]).children().length !== 0) {
-											LessonName = [
-												$($(SelectedLesson[1]).children()[0]).text().trim(),
-												$($(SelectedLesson[1]).children()[2]).text().trim(),
-											];
-										} else {
-											LessonName = [$(SelectedLesson[1]).text().trim()];
-										}
+										if (SelectedLesson.length > 0) {
+											const LessonNum = $(SelectedLesson[0]).text();
+											let LessonName: [string, string?];
+											let LessonTeacher: [string, string?];
+											if ($(SelectedLesson[1]).children().length !== 0) {
+												LessonName = [
+													$($(SelectedLesson[1]).children()[0]).text().trim(),
+													$($(SelectedLesson[1]).children()[2]).text().trim(),
+												];
+											} else {
+												LessonName = [$(SelectedLesson[1]).text().trim()];
+											}
 
-										if ($(SelectedLesson[2]).children().length !== 0) {
-											LessonTeacher = [
-												$($(SelectedLesson[2]).children()[0]).text().trim(),
-												$($(SelectedLesson[2]).children()[2]).text().trim(),
-											];
-										} else {
-											LessonTeacher = [$(SelectedLesson[2]).text().trim()];
+											if ($(SelectedLesson[2]).children().length !== 0) {
+												LessonTeacher = [
+													$($(SelectedLesson[2]).children()[0]).text().trim(),
+													$($(SelectedLesson[2]).children()[2]).text().trim(),
+												];
+											} else {
+												LessonTeacher = [$(SelectedLesson[2]).text().trim()];
+											}
+
+											for (let i = 0; i < LessonTeacher.length; i++) {
+												LessonTeacher[i] === ""
+													? (LessonTeacher[i] = "Отсутствует")
+													: null;
+											}
+
+											CurrentDay.lessons.push({
+												num: Number(LessonNum),
+												name: LessonName,
+												teacher: LessonTeacher,
+											});
 										}
-										CurrentDay.lessons.push({
-											num: Number(LessonNum),
-											name: LessonName,
-											teacher: LessonTeacher,
-										});
 									}
 								});
 							}
@@ -114,6 +165,6 @@ async function parseLessons(): Promise<ParsedSchedule> {
 	return SpecialtyList;
 }
 
-async function parseReplacements() {}
+// async function parseReplacements() {}
 
-export { parseLessons, parseReplacements };
+export { parseLessons };

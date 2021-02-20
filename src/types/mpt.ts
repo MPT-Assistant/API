@@ -24,6 +24,7 @@ type ParsedSchedule = Array<{
 		name: string;
 		days: Array<{
 			num: number;
+			place: string;
 			name: string;
 			lessons: Array<{
 				num: number;
