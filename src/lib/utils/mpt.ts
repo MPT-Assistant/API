@@ -169,7 +169,23 @@ const parseLessons = async (InputHTML?: string): Promise<ParsedSchedule> => {
 	return SpecialtyList;
 };
 
-// async function parseReplacements() {}
+const parseReplacements = async (InputHTML?: string): Promise<void> => {
+	const LessonsHTML =
+		InputHTML ||
+		(
+			await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
+				headers: {
+					cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
+						.join(
+							(Math.random().toString(36) + "00000000000000000").slice(2, 18),
+						)
+						.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
+				},
+			})
+		).data;
+	
+	return;
+};
 
 const getCurrentWeek = async (InputHTML?: string): Promise<Week> => {
 	const LessonsHTML =
