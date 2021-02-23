@@ -170,6 +170,7 @@ async function parseLessons(InputHTML?: string): Promise<ParsedSchedule> {
 }
 
 // async function parseReplacements() {}
+<<<<<<< Updated upstream
 
 async function getCurrentWeek(InputHTML?: string): Promise<Week> {
 	const LessonsHTML =
@@ -205,3 +206,7 @@ async function getCurrentWeek(InputHTML?: string): Promise<Week> {
 }
 
 export { parseLessons, getCurrentWeek };
+=======
+
+export { parseLessons };
+>>>>>>> Stashed changes
