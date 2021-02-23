@@ -2,7 +2,7 @@ import axios from "axios";
 import cheerio from "cheerio";
 import { ParsedSchedule, Week } from "../../types/mpt";
 
-function getDayNum(day: string) {
+const getDayNum = (day: string): number => {
 	const days = [
 		/воскресенье/gi,
 		/понедельник/gi,
@@ -14,9 +14,9 @@ function getDayNum(day: string) {
 	];
 
 	return days.findIndex((x) => x.test(day) === true) || 0;
-}
+};
 
-async function parseLessons(InputHTML?: string): Promise<ParsedSchedule> {
+const parseLessons = async (InputHTML?: string): Promise<ParsedSchedule> => {
 	const LessonsHTML =
 		InputHTML ||
 		(
@@ -167,12 +167,11 @@ async function parseLessons(InputHTML?: string): Promise<ParsedSchedule> {
 	});
 
 	return SpecialtyList;
-}
+};
 
 // async function parseReplacements() {}
-<<<<<<< Updated upstream
 
-async function getCurrentWeek(InputHTML?: string): Promise<Week> {
+const getCurrentWeek = async (InputHTML?: string): Promise<Week> => {
 	const LessonsHTML =
 		InputHTML ||
 		(
@@ -203,10 +202,6 @@ async function getCurrentWeek(InputHTML?: string): Promise<Week> {
 	} else {
 		return "Не определено";
 	}
-}
+};
 
 export { parseLessons, getCurrentWeek };
-=======
-
-export { parseLessons };
->>>>>>> Stashed changes
