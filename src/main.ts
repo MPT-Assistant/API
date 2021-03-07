@@ -1,5 +1,9 @@
-import * as utils from "./lib/utils";
+import * as InternalUtils from "./lib/utils";
+
+// import * as utils from "rus-anonym-utils";
+
+// utils.array.clone
 
 (async function () {
-	console.log(await utils.mpt.getCurrentWeek());
+	console.log(await InternalUtils.mpt.parseReplacements());
 })();

@@ -1,40 +1,42 @@
 type Week = "Знаменатель" | "Числитель" | "Не определено";
 
-type Lesson = {
+interface Lesson {
 	num: number;
-	name: [string, string | null];
-	teacher: [string, string | null];
-};
+	name: [string, string?];
+	teacher: [string, string?];
+}
 
-type Group = {
+interface Group {
 	id: string;
 	name: string;
-	href: string;
 	lessons: Lesson[];
-};
+}
 
-type Specialty = {
+interface Specialty {
 	id: string;
 	name: string;
-	href: string;
 	groups: Group[];
-};
+}
 
-type ParsedSchedule = Array<{
+type ParsedLesson = Lesson;
+
+interface ParsedDay {
+	num: number;
+	place: string;
 	name: string;
-	groups: Array<{
-		name: string;
-		days: Array<{
-			num: number;
-			place: string;
-			name: string;
-			lessons: Array<{
-				num: number;
-				name: [string, string?];
-				teacher: [string, string?];
-			}>;
-		}>;
-	}>;
-}>;
+	lessons: ParsedLesson[];
+}
+
+interface ParsedGroup {
+	name: string;
+	days: ParsedDay[];
+}
+
+interface ParsedScheduleInterface {
+	name: string;
+	groups: ParsedGroup[];
+}
+
+type ParsedSchedule = ParsedScheduleInterface[];
 
 export { Lesson, Group, Specialty, ParsedSchedule, Week };
