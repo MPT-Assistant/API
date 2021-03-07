@@ -26,4 +26,10 @@ const GroupSchema = createSchema({
 	schedule: Type.array({ required: true }).of(DaySchema),
 });
 
-export { UtilityGroupSchema, GroupSchema };
+const SpecialtySchema = createSchema({
+	id: Type.string({ required: true, unique: true }),
+	name: Type.string({ required: true }),
+	groupsCount: Type.number({ required: true }),
+});
+
+export { UtilityGroupSchema, GroupSchema, SpecialtySchema };
