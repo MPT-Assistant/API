@@ -8,4 +8,22 @@ const UtilityGroupSchema = createSchema({
 	specialtyID: Type.string({ required: true }),
 });
 
-export { UtilityGroupSchema };
+const LessonScheme = createSchema({
+	num: Type.number({ required: true }),
+	name: Type.array({ required: true }).of(Type.string({ required: true })),
+	teacher: Type.array({ required: true }).of(Type.string({ required: true })),
+});
+
+const DaySchema = createSchema({
+	num: Type.string({ required: true }),
+	place: Type.string({ required: true }),
+	lessons: Type.array({ required: true }).of(LessonScheme),
+});
+
+const GroupSchema = createSchema({
+	uid: Type.string({ required: true }),
+	id: Type.string({ required: true }),
+	schedule: Type.array({ required: true }).of(DaySchema),
+});
+
+export { UtilityGroupSchema, GroupSchema };
