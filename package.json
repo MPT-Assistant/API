@@ -9,7 +9,7 @@
 		"axios": "^0.21.1",
 		"cheerio": "^1.0.0-rc.5",
 		"fastify": "^3.13.0",
-		"mongoose": "^5.11.19",
+		"mongoose": "5.11.15",
 		"rus-anonym-utils": "^2.0.34",
 		"ts-mongoose": "^0.0.24"
 	},
