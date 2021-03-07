@@ -1,7 +1,7 @@
 import { createSchema, Type } from "ts-mongoose";
 
 const UtilityGroupSchema = createSchema({
-	uid: Type.string({ required: true }),
+	uid: Type.string({ required: true, unique: true }),
 	id: Type.string({ required: true }),
 	name: Type.string({ required: true }),
 	specialty: Type.string({ required: true }),
@@ -21,7 +21,7 @@ const DaySchema = createSchema({
 });
 
 const GroupSchema = createSchema({
-	uid: Type.string({ required: true }),
+	uid: Type.string({ required: true, unique: true }),
 	id: Type.string({ required: true }),
 	schedule: Type.array({ required: true }).of(DaySchema),
 });
