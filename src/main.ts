@@ -5,5 +5,5 @@ import InternalUtils from "./lib/utils";
 // utils.array.clone
 
 (async function () {
-	console.log(await InternalUtils.MPT.parseReplacements());
+	console.log((await InternalUtils.MPT.parseReplacements())[0].groups);
 })();

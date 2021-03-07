@@ -1,6 +1,6 @@
 import axios from "axios";
 import cheerio from "cheerio";
-import { ParsedSchedule, Week } from "../../types/mpt";
+import { ParsedReplacements, ParsedSchedule, Week } from "../../types/mpt";
 
 const getDayNum = (day: string): number => {
 	const days = [
@@ -14,6 +14,47 @@ const getDayNum = (day: string): number => {
 	];
 
 	return days.findIndex((x) => x.test(day) === true) || 0;
+};
+
+const parseTeachers = (
+	input: string,
+): {
+	teachers: string;
+	input: string;
+} => {
+	if (
+		/(([А-Я]\.[А-Я]\. [А-Я][а-я]+)?( \(.*\)))?(?:, )?(([А-Я]\.[А-Я]\. [А-Я][а-я]+)?( \(.*\)))/g.test(
+			input,
+		)
+	) {
+		const execResult = /(([А-Я]\.[А-Я]\. [А-Я][а-я]+)?( \(.*\)))?(?:, )?(([А-Я]\.[А-Я]\. [А-Я][а-я]+)?( \(.*\)))/g.exec(
+			input,
+		);
+		if (!execResult) {
+			return {
+				teachers: "Отсутствует",
+				input: input,
+			};
+		}
+		return {
+			teachers: [execResult[1], execResult[4]].join(", "),
+			input: execResult.input.substring(0, execResult.index).trim(),
+		};
+	} else {
+		const execResult = /([А-Я]\.[А-Я]\. [А-Я][а-я]+)?(?:, )?([А-Я]\.[А-Я]\. [А-Я][а-я]+)/g.exec(
+			input,
+		);
+		if (!execResult) {
+			return {
+				teachers: "Отсутствует",
+				input: input,
+			};
+		}
+		return {
+			teachers: execResult[0],
+			input: execResult.input.substring(0, execResult.index).trim(),
+		};
+	}
 };
 
 class MPT {
@@ -206,7 +247,9 @@ class MPT {
 		return SpecialtyList;
 	}
 
-	public async parseReplacements(InputHTML?: string): Promise<void> {
+	public async parseReplacements(
+		InputHTML?: string,
+	): Promise<ParsedReplacements> {
 		const ReplacementsHTML =
 			InputHTML ||
 			(
@@ -231,20 +274,125 @@ class MPT {
 			$("body > div.page > main > div > div > div:nth-child(3)").children(),
 		);
 
-		const ReplacementsList = [];
+		const ReplacementsList: ParsedReplacements = [];
 
 		// console.log(ReplacementsParsedList);
+
+		const TempReplacementsOnDay: {
+			date: Date;
+			replacements: Array<{
+				group: string;
+				num: number;
+				oldLesson: string;
+				newLesson: string;
+				updated: Date;
+			}>;
+		} = {
+			date: new Date(0),
+			replacements: [],
+		};
+
+		const processReplacementsOnDay = () => {
+			const ReplacementsOnThisDay = TempReplacementsOnDay.replacements.map(
+				(tempReplacement) => {
+					const oldLessonData = parseTeachers(tempReplacement.oldLesson);
+					const newLessonData = parseTeachers(tempReplacement.newLesson);
+					return {
+						group: tempReplacement.group,
+						num: tempReplacement.num,
+						oldLessonTeacher: oldLessonData.teachers,
+						oldLessonName: oldLessonData.input,
+						newLessonTeacher: newLessonData.teachers,
+						newLessonName: newLessonData.input,
+						updated: tempReplacement.updated.valueOf(),
+					};
+				},
+			);
+
+			for (const tempReplacement of ReplacementsOnThisDay) {
+				const ReplacementDay =
+					ReplacementsList.find(
+						(x) => x.date === TempReplacementsOnDay.date.valueOf(),
+					) ||
+					ReplacementsList[
+						ReplacementsList.push({
+							date: TempReplacementsOnDay.date.valueOf(),
+							groups: [],
+						}) - 1
+					];
+				const GroupWithReplacements =
+					ReplacementDay.groups.find(
+						(x) => x.group === tempReplacement.group,
+					) ||
+					ReplacementDay.groups[
+						ReplacementDay.groups.push({
+							group: tempReplacement.group,
+							replacements: [],
+						}) - 1
+					];
+				GroupWithReplacements.replacements.push({
+					num: tempReplacement.num,
+					new: {
+						name: tempReplacement.newLessonName,
+						teacher: tempReplacement.newLessonTeacher,
+					},
+					old: {
+						name: tempReplacement.oldLessonName,
+						teacher: tempReplacement.oldLessonTeacher,
+					},
+					updated: tempReplacement.updated,
+				});
+			}
+		};
 
 		ReplacementsParsedList.each(function (_elementIndex, element) {
 			const SelectedElement = $(element);
 			if (SelectedElement.get()[0].name === "h4") {
-				console.log(SelectedElement.children());
+				let ParsedDate = $($(SelectedElement).children()[0]).text();
+				ParsedDate = ParsedDate.split(".").reverse().join("-");
+				if (Number(TempReplacementsOnDay.date) !== 0) {
+					processReplacementsOnDay();
+				}
+				TempReplacementsOnDay.date = new Date(ParsedDate);
+			} else if (
+				SelectedElement.get()[0].name === "div" &&
+				SelectedElement.attr("class") === "table-responsive"
+			) {
+				const PreParsedData = SelectedElement.children().children();
+				const GroupsNames = $($(PreParsedData[0]).children()[0])
+					.text()
+					.split(", ");
+				for (const group of GroupsNames) {
+					const ReplacementsTable = $(PreParsedData[1]).children();
+					for (let i = 1; i < ReplacementsTable.length; i++) {
+						const TempReplacement = $(ReplacementsTable[i]);
+
+						const LessonNumber = TempReplacement.find(
+							"td.lesson-number",
+						).text();
+						const OldLesson = TempReplacement.find("td.replace-from").text();
+						const NewLesson = TempReplacement.find("td.replace-to").text();
+						const UpdatedAt = TempReplacement.find("td.updated-at").text();
+
+						TempReplacementsOnDay.replacements.push({
+							group: group,
+							num: Number(LessonNumber),
+							oldLesson: OldLesson.trim(),
+							newLesson: NewLesson.trim(),
+							updated: new Date(
+								UpdatedAt.split(` `)[0].split(`.`).reverse().join(`-`) +
+									` ` +
+									UpdatedAt.split(` `)[1],
+							),
+						});
+					}
+					// process.exit();
+				}
 			}
 		});
+		processReplacementsOnDay();
 
-		// console.log($($(ReplacementsList[1]).children()).text());
-
-		return;
+		return ReplacementsList;
 	}
 }
 
