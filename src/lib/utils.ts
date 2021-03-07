@@ -1,6 +1,5 @@
-import * as mpt from "./utils/mpt";
+import MPT from "./utils/mpt";
 
-
-export {
-    mpt
+export default class Utils {
+	public static MPT: MPT = new MPT();
 }

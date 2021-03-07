@@ -17,7 +17,10 @@ const getDayNum = (day: string): number => {
 };
 
 class MPT {
-	public static async getCurrentWeek(InputHTML?: string): Promise<Week> {
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
+	constructor() {}
+
+	public async getCurrentWeek(InputHTML?: string): Promise<Week> {
 		const LessonsHTML =
 			InputHTML ||
 			(
@@ -50,7 +53,7 @@ class MPT {
 		}
 	}
 
-	public static async parseLesson(InputHTML?: string): Promise<ParsedSchedule> {
+	public async parseLesson(InputHTML?: string): Promise<ParsedSchedule> {
 		const LessonsHTML =
 			InputHTML ||
 			(
@@ -203,7 +206,7 @@ class MPT {
 		return SpecialtyList;
 	}
 
-	public static async parseReplacements(InputHTML?: string): Promise<void> {
+	public async parseReplacements(InputHTML?: string): Promise<void> {
 		const ReplacementsHTML =
 			InputHTML ||
 			(

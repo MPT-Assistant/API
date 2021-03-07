@@ -1,9 +1,9 @@
-import * as InternalUtils from "./lib/utils";
+import InternalUtils from "./lib/utils";
 
 // import * as utils from "rus-anonym-utils";
 
 // utils.array.clone
 
 (async function () {
-	console.log(await InternalUtils.mpt.parseReplacements());
+	console.log(await InternalUtils.MPT.parseReplacements());
 })();
