@@ -32,4 +32,16 @@ const SpecialtySchema = createSchema({
 	groupsCount: Type.number({ required: true }),
 });
 
-export { UtilityGroupSchema, GroupSchema, SpecialtySchema };
+const ReplacementSchema = createSchema({
+	date: Type.date({ required: true }),
+	uid: Type.string({ required: true }),
+	detected: Type.date({ required: true }),
+	addToSite: Type.date({ required: true }),
+	lessonNum: Type.number({ required: true }),
+	oldLessonName: Type.string({ required: true }),
+	oldLessonTeacher: Type.string({ required: true }),
+	newLessonName: Type.string({ required: true }),
+	newLessonTeacher: Type.string({ required: true }),
+});
+
+export { UtilityGroupSchema, GroupSchema, SpecialtySchema, ReplacementSchema };
