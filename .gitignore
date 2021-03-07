@@ -2,3 +2,4 @@
 /dist
 /src/DB/config.json
 test.js
+yarn-error.log
