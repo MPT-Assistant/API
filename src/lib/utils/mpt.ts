@@ -352,6 +352,7 @@ class MPT {
 				ParsedDate = ParsedDate.split(".").reverse().join("-");
 				if (Number(TempReplacementsOnDay.date) !== 0) {
 					processReplacementsOnDay();
+					TempReplacementsOnDay.replacements = [];
 				}
 				TempReplacementsOnDay.date = new Date(ParsedDate);
 			} else if (
