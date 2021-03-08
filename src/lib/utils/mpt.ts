@@ -71,11 +71,19 @@ class MPT {
 		week: Week;
 		schedule: Specialty[];
 		replacements: Replacement[];
+		groups: Array<{
+			id: string;
+			uid: string;
+			name: string;
+			specialty: string;
+			specialtyID: string;
+		}>;
 		lastUpdate: Date;
 	} = {
 		week: "Не определено",
 		schedule: [],
 		replacements: [],
+		groups: [],
 		lastUpdate: new Date(),
 	};
 
@@ -470,9 +478,30 @@ class MPT {
 			}
 		}
 
+		const ParsedGroups: Array<{
+			id: string;
+			uid: string;
+			name: string;
+			specialty: string;
+			specialtyID: string;
+		}> = [];
+
+		for (const specialty of ParsedSchedule) {
+			for (const group of specialty.groups) {
+				ParsedGroups.push({
+					id: group.id,
+					uid: group.uid,
+					name: group.name,
+					specialty: specialty.name,
+					specialtyID: specialty.id,
+				});
+			}
+		}
+
 		this.data.week = CurrentWeek;
 		this.data.schedule = ParsedSchedule;
 		this.data.replacements = ParsedReplacements;
+		this.data.groups = ParsedGroups;
 		this.data.lastUpdate = new Date();
 	}
 }
