@@ -16,9 +16,11 @@ API.push({
 	url: "/api/getCurrentWeek",
 	handler: async () => {
 		return {
-			date: moment().format("DD.MM.YYYY"),
-			week: InternalUtils.MPT.data.week,
-			weekNum: getNumberOfWeek(),
+			response: {
+				date: moment().format("DD.MM.YYYY"),
+				week: InternalUtils.MPT.data.week,
+				weekNum: getNumberOfWeek(),
+			},
 		};
 	},
 });

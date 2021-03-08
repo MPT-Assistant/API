@@ -20,3 +20,4 @@ const routes: Array<
 export default routes;
 
 import "./methods/getCurrentWeek";
+import "./methods/getGroupList";
