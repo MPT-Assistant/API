@@ -42,6 +42,7 @@ const ReplacementSchema = createSchema({
 	oldLessonTeacher: Type.string({ required: true }),
 	newLessonName: Type.string({ required: true }),
 	newLessonTeacher: Type.string({ required: true }),
+	hash: Type.string({ required: true }),
 });
 
 export { UtilityGroupSchema, GroupSchema, SpecialtySchema, ReplacementSchema };
