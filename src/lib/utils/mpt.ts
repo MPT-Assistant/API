@@ -1,6 +1,15 @@
 import axios from "axios";
 import cheerio from "cheerio";
-import { ParsedReplacements, ParsedSchedule, Week } from "../../types/mpt";
+
+import CryptoJS from "crypto-js";
+
+import {
+	ParsedReplacements,
+	ParsedSchedule,
+	Replacement,
+	Specialty,
+	Week,
+} from "../../types/mpt";
 
 const getDayNum = (day: string): number => {
 	const days = [
@@ -58,6 +67,18 @@ const parseTeachers = (
 };
 
 class MPT {
+	public readonly data: {
+		week: Week;
+		schedule: Specialty[];
+		replacements: Replacement[];
+		lastUpdate: Date;
+	} = {
+		week: "Не определено",
+		schedule: [],
+		replacements: [],
+		lastUpdate: new Date(),
+	};
+
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	constructor() {}
 
@@ -94,7 +115,7 @@ class MPT {
 		}
 	}
 
-	public async parseLesson(InputHTML?: string): Promise<ParsedSchedule> {
+	public async parseLessons(InputHTML?: string): Promise<ParsedSchedule> {
 		const LessonsHTML =
 			InputHTML ||
 			(
@@ -394,6 +415,65 @@ class MPT {
 		processReplacementsOnDay();
 
 		return ReplacementsList;
+	}
+
+	public async updateData(): Promise<void> {
+		const CurrentWeek = await this.getCurrentWeek();
+		const CurrentSchedule = await this.parseLessons();
+		const CurrentReplacements = await this.parseReplacements();
+
+		const ParsedSchedule: Specialty[] = [];
+		const ParsedReplacements: Replacement[] = [];
+
+		for (const specialty of CurrentSchedule) {
+			const SpecialtyID = CryptoJS.SHA256(specialty.name).toString();
+			const OutputSpecialty =
+				ParsedSchedule[
+					ParsedSchedule.push({
+						id: SpecialtyID,
+						name: specialty.name,
+						groups: [],
+					}) - 1
+				];
+			for (const group of specialty.groups) {
+				const GroupID = CryptoJS.SHA256(group.name).toString();
+				const UnicalID = CryptoJS.SHA256(
+					`${specialty.name} | ${group.name}`,
+				).toString();
+				OutputSpecialty.groups.push({
+					id: GroupID,
+					uid: UnicalID,
+					name: group.name,
+					days: group.days,
+				});
+			}
+		}
+
+		for (const day of CurrentReplacements) {
+			for (const group of day.groups) {
+				for (const replacement of group.replacements) {
+					ParsedReplacements.push({
+						date: new Date(day.date),
+						uid: CryptoJS.SHA256(group.group).toString(),
+						detected: new Date(),
+						addToSite: new Date(replacement.updated),
+						lessonNum: replacement.num,
+						oldLessonName: replacement.old.name,
+						oldLessonTeacher: replacement.old.teacher,
+						newLessonName: replacement.new.name,
+						newLessonTeacher: replacement.new.teacher,
+						hash: CryptoJS.SHA256(
+							`${day.date} | ${group.group} / ${JSON.stringify(replacement)}`,
+						).toString(),
+					});
+				}
+			}
+		}
+
+		this.data.week = CurrentWeek;
+		this.data.schedule = ParsedSchedule;
+		this.data.replacements = ParsedReplacements;
+		this.data.lastUpdate = new Date();
 	}
 }
 

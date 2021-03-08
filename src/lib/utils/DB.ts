@@ -12,10 +12,12 @@ class DB {
 		password: string;
 		database: string;
 	}) {
-		mongoose.connect(`mongodb+srv://${login}:${password}@${url}/${database}`, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-		});
+		mongoose
+			.connect(`mongodb+srv://${login}:${password}@${url}/${database}`, {
+				useNewUrlParser: true,
+				useUnifiedTopology: true,
+			})
+			.then(() => console.log(`MongoDB connected`));
 	}
 }
 

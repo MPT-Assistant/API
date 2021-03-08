@@ -6,10 +6,18 @@ interface Lesson {
 	teacher: [string, string?];
 }
 
-interface Group {
-	id: string;
+interface Day {
+	num: number;
+	place: string;
 	name: string;
 	lessons: Lesson[];
+}
+
+interface Group {
+	id: string;
+	uid: string;
+	name: string;
+	days: Day[];
 }
 
 interface Specialty {
@@ -18,28 +26,19 @@ interface Specialty {
 	groups: Group[];
 }
 
-type ParsedLesson = Lesson;
-
-interface ParsedDay {
-	num: number;
-	place: string;
-	name: string;
-	lessons: ParsedLesson[];
-}
-
 interface ParsedGroup {
 	name: string;
-	days: ParsedDay[];
+	days: Day[];
 }
 
-interface ParsedScheduleInterface {
+interface ParsedSpecialty {
 	name: string;
 	groups: ParsedGroup[];
 }
 
-type ParsedSchedule = ParsedScheduleInterface[];
+type ParsedSchedule = ParsedSpecialty[];
 
-interface Replacement {
+interface ParsedReplacement {
 	num: number;
 	old: {
 		name: string;
@@ -54,7 +53,7 @@ interface Replacement {
 
 interface ReplacementGroup {
 	group: string;
-	replacements: Replacement[];
+	replacements: ParsedReplacement[];
 }
 
 interface ReplacementDay {
@@ -64,4 +63,25 @@ interface ReplacementDay {
 
 type ParsedReplacements = ReplacementDay[];
 
-export { Lesson, Group, Specialty, ParsedSchedule, ParsedReplacements, Week };
+type Replacement = {
+	date: Date;
+	uid: string;
+	detected: Date;
+	addToSite: Date;
+	lessonNum: number;
+	oldLessonName: string;
+	oldLessonTeacher: string;
+	newLessonName: string;
+	newLessonTeacher: string;
+	hash: string;
+};
+
+export {
+	Lesson,
+	Group,
+	Specialty,
+	ParsedSchedule,
+	ParsedReplacements,
+	Week,
+	Replacement,
+};

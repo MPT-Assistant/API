@@ -1,3 +1,4 @@
+import "./lib/core";
 import InternalUtils from "./lib/utils";
 
 // import * as utils from "rus-anonym-utils";
@@ -5,5 +6,5 @@ import InternalUtils from "./lib/utils";
 // utils.array.clone
 
 (async function () {
-	console.log((await InternalUtils.MPT.parseReplacements())[0].groups);
+	// console.log(await InternalUtils.MPT.updateData());
 })();
