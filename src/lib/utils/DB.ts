@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
+import * as schemes from "./DB/schemes";
+import * as models from "./DB/models";
+
 class DB {
+	public static schemes = schemes;
+	public static models = models;
+
 	constructor({
 		url,
 		login,

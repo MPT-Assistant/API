@@ -425,6 +425,10 @@ class MPT {
 		return ReplacementsList;
 	}
 
+	private async updateDataInDataBase(): Promise<void> {
+		const sourceData = this.data;
+	}
+
 	public async updateData(): Promise<void> {
 		const CurrentWeek = await this.getCurrentWeek();
 		const CurrentSchedule = await this.parseLessons();
