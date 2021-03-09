@@ -3,8 +3,8 @@ import server from "../../main";
 
 interface IQuery {
 	id: string;
-	from?: number;
-	to?: number;
+	from?: number | Date;
+	to?: number | Date;
 }
 
 const opts: RouteShorthandOptions = {
@@ -16,8 +16,8 @@ const opts: RouteShorthandOptions = {
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const {
-			id,
+		const { id } = request.query as IQuery;
+		let {
 			from = new Date().valueOf(),
 			to = new Date().valueOf() + 24 * 60 * 60 * 1000,
 		} = request.query as IQuery;
@@ -25,10 +25,13 @@ const opts: RouteShorthandOptions = {
 			new Error("Group ID not specified");
 		}
 		try {
-			new Date(from);
-			new Date(to);
+			from = new Date(from);
+			to = new Date(to);
 		} catch (error) {
 			new Error("One of the time parameters is invalid");
+		}
+		if (Math.abs(Number(from) - Number(to)) > 7 * 24 * 60 * 60 * 1000) {
+			new Error("Maximum interval one week");
 		}
 		done();
 	},
