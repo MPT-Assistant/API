@@ -8,28 +8,30 @@ const UtilityGroupSchema = createSchema({
 	specialtyID: Type.string({ required: true }),
 });
 
-const LessonScheme = createSchema({
+const LessonScheme = {
 	num: Type.number({ required: true }),
 	name: Type.array({ required: true }).of(Type.string({ required: true })),
 	teacher: Type.array({ required: true }).of(Type.string({ required: true })),
-});
+};
 
-const DaySchema = createSchema({
-	num: Type.string({ required: true }),
+const DaySchema = {
+	num: Type.number({ required: true }),
 	place: Type.string({ required: true }),
+	name: Type.string({ required: true }),
 	lessons: Type.array({ required: true }).of(LessonScheme),
-});
+};
 
 const GroupSchema = createSchema({
 	uid: Type.string({ required: true, unique: true }),
 	id: Type.string({ required: true }),
+	specialtyID: Type.string({ required: true }),
 	schedule: Type.array({ required: true }).of(DaySchema),
 });
 
 const SpecialtySchema = createSchema({
 	id: Type.string({ required: true, unique: true }),
 	name: Type.string({ required: true }),
-	groupsCount: Type.number({ required: true }),
+	groups: Type.array({ required: true }).of(Type.string({ required: true })),
 });
 
 const ReplacementSchema = createSchema({
@@ -45,4 +47,10 @@ const ReplacementSchema = createSchema({
 	hash: Type.string({ required: true }),
 });
 
-export { UtilityGroupSchema, GroupSchema, SpecialtySchema, ReplacementSchema };
+export {
+	DaySchema,
+	UtilityGroupSchema,
+	GroupSchema,
+	SpecialtySchema,
+	ReplacementSchema,
+};

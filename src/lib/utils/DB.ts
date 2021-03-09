@@ -22,6 +22,7 @@ class DB {
 			.connect(`mongodb+srv://${login}:${password}@${url}/${database}`, {
 				useNewUrlParser: true,
 				useUnifiedTopology: true,
+				useCreateIndex: true,
 			})
 			.then(() => console.log(`MongoDB connected`));
 	}

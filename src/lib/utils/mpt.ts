@@ -2,14 +2,18 @@ import axios from "axios";
 import cheerio from "cheerio";
 
 import CryptoJS from "crypto-js";
+import DB from "./DB";
 
 import {
+	Group,
 	ParsedReplacements,
 	ParsedSchedule,
 	Replacement,
 	Specialty,
 	Week,
 } from "../../types/mpt";
+
+import { DaySchema } from "./DB/schemes";
 
 const getDayNum = (day: string): number => {
 	const days = [
@@ -66,24 +70,38 @@ const parseTeachers = (
 	}
 };
 
+interface MPT_Group {
+	id: string;
+	uid: string;
+	name: string;
+	specialty: string;
+	specialtyID: string;
+}
+
+interface MPT_Specialty {
+	id: string;
+	name: string;
+	groups: Array<{
+		id: string;
+		uid: string;
+		name: string;
+	}>;
+}
+
 class MPT {
 	public readonly data: {
 		week: Week;
 		schedule: Specialty[];
 		replacements: Replacement[];
-		groups: Array<{
-			id: string;
-			uid: string;
-			name: string;
-			specialty: string;
-			specialtyID: string;
-		}>;
+		groups: MPT_Group[];
+		specialties: MPT_Specialty[];
 		lastUpdate: Date;
 	} = {
 		week: "Не определено",
 		schedule: [],
 		replacements: [],
 		groups: [],
+		specialties: [],
 		lastUpdate: new Date(),
 	};
 
@@ -427,6 +445,60 @@ class MPT {
 
 	private async updateDataInDataBase(): Promise<void> {
 		const sourceData = this.data;
+
+		for (const group of sourceData.groups) {
+			if (!(await DB.models.utilityGroupModel.findOne({ uid: group.uid }))) {
+				const utilityGroupModel = new DB.models.utilityGroupModel(group);
+				await utilityGroupModel.save();
+			}
+			const currentSpecialty = sourceData.schedule.find(
+				(specialty) => specialty.id === group.specialtyID,
+			) as Specialty;
+			const currentGroup = currentSpecialty.groups.find(
+				(x) => x.id === group.id,
+			) as Group;
+
+			const groupSchedule = currentGroup.days;
+
+			let groupData = await DB.models.groupModel.findOne({ uid: group.uid });
+
+			if (!groupData) {
+				groupData = new DB.models.groupModel({
+					uid: group.uid,
+					id: group.id,
+					specialtyID: group.specialtyID,
+					schedule: groupSchedule,
+				});
+			} else {
+				groupData.schedule = groupSchedule as typeof DaySchema[];
+			}
+
+			await groupData.save();
+		}
+
+		for (const specialty of sourceData.specialties) {
+			let currentSpecialty = await DB.models.specialtyModel.findOne({
+				id: specialty.id,
+			});
+			if (!currentSpecialty) {
+				currentSpecialty = new DB.models.specialtyModel({
+					id: specialty.id,
+					name: specialty.name,
+					groups: specialty.groups.map((group) => group.id),
+				});
+			} else {
+				currentSpecialty.groups = specialty.groups.map((group) => group.id);
+			}
+			await currentSpecialty.save();
+		}
+
+		for (const replacement of sourceData.replacements) {
+			if (
+				!(await DB.models.replacementModel.findOne({ hash: replacement.hash }))
+			) {
+				await new DB.models.replacementModel(replacement).save();
+			}
+		}
 	}
 
 	public async updateData(): Promise<void> {
@@ -482,13 +554,9 @@ class MPT {
 			}
 		}
 
-		const ParsedGroups: Array<{
-			id: string;
-			uid: string;
-			name: string;
-			specialty: string;
-			specialtyID: string;
-		}> = [];
+		const ParsedGroups: MPT_Group[] = [];
+
+		const ParsedSpecialties: MPT_Specialty[] = [];
 
 		for (const specialty of ParsedSchedule) {
 			for (const group of specialty.groups) {
@@ -500,13 +568,27 @@ class MPT {
 					specialtyID: specialty.id,
 				});
 			}
+			ParsedSpecialties.push({
+				id: specialty.id,
+				name: specialty.name,
+				groups: specialty.groups.map((group) => {
+					return {
+						uid: group.uid,
+						id: group.id,
+						name: group.name,
+					};
+				}),
+			});
 		}
 
 		this.data.week = CurrentWeek;
 		this.data.schedule = ParsedSchedule;
 		this.data.replacements = ParsedReplacements;
 		this.data.groups = ParsedGroups;
+		this.data.specialties = ParsedSpecialties;
 		this.data.lastUpdate = new Date();
+
+		await this.updateDataInDataBase();
 	}
 }
 
