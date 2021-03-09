@@ -1,18 +1,19 @@
 import { RouteShorthandOptions } from "fastify/types/route";
 import server from "../../main";
+import InternalUtils from "../../../utils";
+import DB from "../../../utils/DB";
+import moment from "moment";
 
 interface IQuery {
 	id: string;
-	from?: number | Date;
-	to?: number | Date;
+	from: number | Date;
+	to: number | Date;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
 		querystring: {
 			id: { type: "string" },
-			from: { type: "number" },
-			to: { type: "number" },
 		},
 	},
 	preValidation: (request, reply, done) => {
@@ -33,14 +34,45 @@ const opts: RouteShorthandOptions = {
 		if (Math.abs(Number(from) - Number(to)) > 7 * 24 * 60 * 60 * 1000) {
 			new Error("Maximum interval one week");
 		}
+		(request.query as IQuery) = {
+			id: id,
+			from: new Date(from),
+			to: new Date(to),
+		};
 		done();
 	},
 };
 
 server.post<{
 	Querystring: IQuery;
-}>("/api/getGroupReplacements", opts, async () => {
+}>("/api/getGroupReplacements", opts, async (request) => {
+	const selectedID = request.query.id;
+
+	if (!InternalUtils.MPT.data.groups.find((group) => group.id === selectedID)) {
+		new Error("Group not found");
+	}
+
+	const selectedReplacements = await DB.models.replacementModel.find({
+		uid: selectedID,
+		date: {
+			$gt: new Date(request.query.from),
+			$lt: new Date(request.query.to),
+		},
+	});
+
 	return {
-		response: {},
+		response: selectedReplacements.map((replacement) => {
+			return {
+				date: moment(replacement.date).format("DD.MM.YYYY"),
+				uid: replacement.uid,
+				detected: replacement.detected,
+				addToSite: replacement.addToSite,
+				lessonNum: replacement.lessonNum,
+				oldLessonName: replacement.oldLessonName,
+				oldLessonTeacher: replacement.oldLessonTeacher,
+				newLessonName: replacement.newLessonName,
+				newLessonTeacher: replacement.newLessonTeacher,
+			};
+		}),
 	};
 });
