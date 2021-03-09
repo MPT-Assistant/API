@@ -1,5 +1,5 @@
-import API from "../API";
-import InternalUtils from "../../utils";
+import server from "../../main";
+import InternalUtils from "../../../utils";
 
 import moment from "moment";
 
@@ -11,16 +11,12 @@ function getNumberOfWeek() {
 	return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
 }
 
-API.push({
-	method: "POST",
-	url: "/api/getCurrentWeek",
-	handler: async () => {
-		return {
-			response: {
-				date: moment().format("DD.MM.YYYY"),
-				week: InternalUtils.MPT.data.week,
-				weekNum: getNumberOfWeek(),
-			},
-		};
-	},
+server.post("/api/getCurrentWeek", async () => {
+	return {
+		response: {
+			date: moment().format("DD.MM.YYYY"),
+			week: InternalUtils.MPT.data.week,
+			weekNum: getNumberOfWeek(),
+		},
+	};
 });
