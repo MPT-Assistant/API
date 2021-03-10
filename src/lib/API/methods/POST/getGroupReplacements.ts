@@ -4,7 +4,7 @@ import InternalUtils from "../../../utils";
 import DB from "../../../utils/DB";
 import moment from "moment";
 
-interface IQuery {
+interface Body {
 	id: string;
 	from: number | Date;
 	to: number | Date;
@@ -12,16 +12,16 @@ interface IQuery {
 
 const opts: RouteShorthandOptions = {
 	schema: {
-		querystring: {
+		body: {
 			id: { type: "string" },
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const { id } = request.query as IQuery;
+		const { id } = request.body as Body;
 		let {
 			from = new Date().valueOf(),
 			to = new Date().valueOf() + 24 * 60 * 60 * 1000,
-		} = request.query as IQuery;
+		} = request.body as Body;
 		if (!id) {
 			new Error("Group ID not specified");
 		}
@@ -34,7 +34,7 @@ const opts: RouteShorthandOptions = {
 		if (Math.abs(Number(from) - Number(to)) > 7 * 24 * 60 * 60 * 1000) {
 			new Error("Maximum interval one week");
 		}
-		(request.query as IQuery) = {
+		(request.body as Body) = {
 			id: id,
 			from: new Date(from),
 			to: new Date(to),
@@ -44,9 +44,9 @@ const opts: RouteShorthandOptions = {
 };
 
 server.post<{
-	Querystring: IQuery;
+	Body: Body;
 }>("/api/getGroupReplacements", opts, async (request) => {
-	const selectedID = request.query.id;
+	const selectedID = request.body.id;
 
 	if (!InternalUtils.MPT.data.groups.find((group) => group.id === selectedID)) {
 		new Error("Group not found");
@@ -55,8 +55,8 @@ server.post<{
 	const selectedReplacements = await DB.models.replacementModel.find({
 		uid: selectedID,
 		date: {
-			$gt: new Date(request.query.from),
-			$lt: new Date(request.query.to),
+			$gt: new Date(request.body.from),
+			$lt: new Date(request.body.to),
 		},
 	});
 

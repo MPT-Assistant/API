@@ -3,23 +3,23 @@ import server from "../../main";
 import InternalUtils from "../../../utils";
 import moment from "moment";
 
-interface IQuery {
+interface Body {
 	id: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
-		querystring: {
+		body: {
 			id: { type: "string" },
 		},
 	},
 };
 
 server.post<{
-	Querystring: IQuery;
+	Body: Body;
 }>("/api/getCurrentReplacements", opts, async (request) => {
-	if (request.query.id) {
-		const groupID = request.query.id;
+	if (request.body.id) {
+		const groupID = request.body.id;
 
 		const groupData = InternalUtils.MPT.data.groups.find(
 			(group) => group.uid === groupID,

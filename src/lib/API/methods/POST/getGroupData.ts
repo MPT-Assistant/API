@@ -2,26 +2,26 @@ import { RouteShorthandOptions } from "fastify/types/route";
 import server from "../../main";
 import InternalUtils from "../../../utils";
 
-interface IQuery {
+interface Body {
 	id: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
-		querystring: {
+		body: {
 			id: { type: "string" },
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const { id } = request.query as IQuery;
+		const { id } = request.body as Body;
 		done(!id || id === "" ? new Error("Group ID not specified") : undefined);
 	},
 };
 
 server.post<{
-	Querystring: IQuery;
+	Body: Body;
 }>("/api/getGroupData", opts, async (request) => {
-	const selectedID = request.query.id;
+	const selectedID = request.body.id;
 
 	const findGroup = InternalUtils.MPT.data.groups.find(
 		(group) => group.id === selectedID,

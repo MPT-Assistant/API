@@ -3,26 +3,26 @@ import server from "../../main";
 import InternalUtils from "../../../utils";
 import { Group, Specialty } from "../../../../types/mpt";
 
-interface IQuery {
+interface Body {
 	id: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
-		querystring: {
+		body: {
 			id: { type: "string" },
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const { id } = request.query as IQuery;
+		const { id } = request.body as Body;
 		done(!id || id === "" ? new Error("Group ID not specified") : undefined);
 	},
 };
 
 server.post<{
-	Querystring: IQuery;
+	Body: Body;
 }>("/api/getGroupSchedule", opts, async (request) => {
-	const groupID = request.query.id;
+	const groupID = request.body.id;
 
 	const groupData = InternalUtils.MPT.data.groups.find(
 		(group) => group.uid === groupID,

@@ -3,26 +3,26 @@ import server from "../../main";
 import InternalUtils from "../../../utils";
 import * as utils from "rus-anonym-utils";
 
-interface IQuery {
+interface Body {
 	group: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
-		querystring: {
+		body: {
 			group: { type: "string" },
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const { group } = request.query as IQuery;
+		const { group } = request.body as Body;
 		done(!group || group === "" ? new Error("Group not specified") : undefined);
 	},
 };
 
 server.post<{
-	Querystring: IQuery;
+	Body: Body;
 }>("/api/getGroupID", opts, async (request) => {
-	const selectedGroup = request.query.group;
+	const selectedGroup = request.body.group;
 
 	const findGroup =
 		InternalUtils.MPT.data.groups.find(
