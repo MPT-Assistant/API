@@ -49,7 +49,7 @@ server.post<{
 	const selectedID = request.body.id;
 
 	if (!InternalUtils.MPT.data.groups.find((group) => group.id === selectedID)) {
-		new Error("Group not found");
+		throw new Error("Group not found");
 	}
 
 	const selectedReplacements = await DB.models.replacementModel.find({

@@ -24,11 +24,11 @@ server.post<{
 	const selectedID = request.body.id;
 
 	const findGroup = InternalUtils.MPT.data.groups.find(
-		(group) => group.id === selectedID,
+		(group) => group.uid === selectedID,
 	);
 
 	if (!findGroup) {
-		new Error("Group not found");
+		throw new Error("Group not found");
 	} else {
 		return {
 			response: findGroup,
