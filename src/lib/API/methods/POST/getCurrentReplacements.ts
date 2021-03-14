@@ -22,7 +22,7 @@ server.post<{
 		const groupID = request.body.id;
 
 		const groupData = InternalUtils.MPT.data.groups.find(
-			(group) => group.uid === groupID,
+			(group) => group.id === groupID,
 		);
 
 		if (!groupData) {
