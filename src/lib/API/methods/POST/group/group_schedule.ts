@@ -1,28 +1,28 @@
 import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../main";
-import InternalUtils from "../../../utils";
-import { Group, Specialty } from "../../../../types/mpt";
+import server from "../../../main";
+import InternalUtils from "../../../../utils";
+import { Group, Specialty } from "../../../../../types/mpt";
 
 interface Body {
-	id: string;
+	uid: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
 		body: {
-			id: { type: "string" },
+			uid: { type: "string" },
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const { id } = request.body as Body;
-		done(!id || id === "" ? new Error("Group ID not specified") : undefined);
+		const { uid } = request.body as Body;
+		done(!uid || uid === "" ? new Error("Group ID not specified") : undefined);
 	},
 };
 
 server.post<{
 	Body: Body;
-}>("/api/getGroupSchedule", opts, async (request) => {
-	const groupID = request.body.id;
+}>("/api/group.schedule", opts, async (request) => {
+	const groupID = request.body.uid;
 
 	const groupData = InternalUtils.MPT.data.groups.find(
 		(group) => group.uid === groupID,
