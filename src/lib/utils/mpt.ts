@@ -15,26 +15,15 @@ import {
 
 import { DaySchema } from "./DB/schemes";
 
-const days = [	"понедельник",
-		"вторник",
-		"среда",
-		"четверг",
-		"пятница",
-		"суббота",]
-
-const getDayNum = (day: string): number => {
-	const days = [
-		/воскресенье/gi,
-		/понедельник/gi,
-		/вторник/gi,
-		/среда/gi,
-		/четверг/gi,
-		/пятница/gi,
-		/суббота/gi,
-	];
-
-	return days.findIndex((x) => x.test(day) === true) || 0;
-};
+const days = [
+	"Воскресенье",
+	"Понедельник",
+	"Вторник",
+	"Среда",
+	"Четверг",
+	"Пятница",
+	"Суббота",
+];
 
 const parseTeachers = (
 	input: string,
@@ -206,14 +195,13 @@ class MPT {
 									days: [],
 								}) - 1
 							];
-						let numDay = 0;
+						let currentDayNum = 0;
 						$(SelectedGroupLessons.children()[1])
 							.children()
 							.each(function (_dayIndex, dayElement) {
 								const SelectedDay = $(dayElement);
 								if (SelectedDay.prop("name") === "thead") {
-									numDay+=1;
-									let DayName: string;
+									currentDayNum += 1;
 									let Place: string;
 									Place = $(
 										$(
@@ -228,13 +216,13 @@ class MPT {
 									Place = Place.replace(/\(|\)/gi, "");
 									Place === "" ? (Place = "Не указано") : null;
 
-									DayName = days[numDay];
+									const DayName = days[currentDayNum];
 
 									const DayLessons = SelectedDay.next();
 									const CurrentDay =
 										CurrentGroup.days[
 											CurrentGroup.days.push({
-												num: numDay,
+												num: currentDayNum,
 												place: Place,
 												name: DayName,
 												lessons: [],
