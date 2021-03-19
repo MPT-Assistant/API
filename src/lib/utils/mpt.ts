@@ -1,5 +1,6 @@
 import axios from "axios";
 import cheerio from "cheerio";
+import moment from "moment";
 
 import CryptoJS from "crypto-js";
 import DB from "./DB";
@@ -9,6 +10,7 @@ import {
 	ParsedReplacements,
 	ParsedSchedule,
 	Replacement,
+	ReplacementGroup,
 	Specialty,
 	Week,
 } from "../../types/mpt";
@@ -416,6 +418,99 @@ class MPT {
 		});
 		processReplacementsOnDay();
 
+		return ReplacementsList;
+	}
+
+	public async getReplacementsOnDay(
+		date: Date = new Date(),
+	): Promise<
+		Array<{
+			group: string;
+			replacements: Array<{
+				num: number;
+				old: {
+					name: string;
+					teacher: string;
+				};
+				new: {
+					name: string;
+					teacher: string;
+				};
+			}>;
+		}>
+	> {
+		const ReplacementsHTML = (
+			await axios.get(
+				"https://www.mpt.ru/rasp-management/print-replaces.php?date=" +
+					moment(date).format("YYYY-MM-DD"),
+			)
+		).data;
+		const $ = cheerio.load(ReplacementsHTML);
+		const ReplacementsList: Array<{
+			group: string;
+			replacements: Array<{
+				num: number;
+				old: {
+					name: string;
+					teacher: string;
+				};
+				new: {
+					name: string;
+					teacher: string;
+				};
+			}>;
+		}> = [];
+		$("body")
+			.children()
+			.each(function replacementsListParser(
+				_replacementListIndex,
+				replacementListElement,
+			) {
+				const SelectedReplacementList = $(replacementListElement);
+				if (SelectedReplacementList.get()[0].name === "table") {
+					for (const group of SelectedReplacementList.children()
+						.first()
+						.text()
+						.split(", ")) {
+						const GroupReplacementsList =
+							ReplacementsList[
+								ReplacementsList.push({
+									group: group,
+									replacements: [],
+								}) - 1
+							];
+
+						SelectedReplacementList.children()
+							.next()
+							.each(function replacementParser(
+								_replacementIndex,
+								replacementElement,
+							) {
+								const SelectedGroup = $(replacementElement);
+								const SelectedReplacements = SelectedGroup.children();
+								for (let i = 1; i < SelectedReplacements.length; i++) {
+									const CurrentTable = $(SelectedReplacements[i]);
+									const LessonNum = $(CurrentTable.children()[0]).text();
+									const OldLesson = $(CurrentTable.children()[1]).text();
+									const NewLesson = $(CurrentTable.children()[2]).text();
+									const ParsedOldLesson = parseTeachers(OldLesson);
+									const ParsedNewLesson = parseTeachers(NewLesson);
+									GroupReplacementsList.replacements.push({
+										num: Number(LessonNum),
+										new: {
+											name: ParsedNewLesson.input,
+											teacher: ParsedNewLesson.teachers,
+										},
+										old: {
+											name: ParsedOldLesson.input,
+											teacher: ParsedOldLesson.teachers,
+										},
+									});
+								}
+							});
+					}
+				}
+			});
 		return ReplacementsList;
 	}
 

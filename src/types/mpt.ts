@@ -81,4 +81,5 @@ export {
 	ParsedReplacements,
 	Week,
 	Replacement,
+	ReplacementGroup,
 };
