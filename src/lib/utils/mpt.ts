@@ -101,8 +101,9 @@ class MPT {
 		lastUpdate: new Date(),
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	constructor() {}
+	constructor() {
+		return this;
+	}
 
 	public async getCurrentWeek(InputHTML?: string): Promise<Week> {
 		const LessonsHTML =
