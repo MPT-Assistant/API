@@ -14,14 +14,11 @@ interface Day {
 }
 
 interface Group {
-	id: string;
-	uid: string;
 	name: string;
 	days: Day[];
 }
 
 interface Specialty {
-	id: string;
 	name: string;
 	groups: Group[];
 }
@@ -65,7 +62,7 @@ type ParsedReplacements = ReplacementDay[];
 
 type Replacement = {
 	date: Date;
-	uid: string;
+	group: string;
 	detected: Date;
 	addToSite: Date;
 	lessonNum: number;

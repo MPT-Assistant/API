@@ -1,12 +1,6 @@
 import * as schemes from "./schemes";
 import { typedModel } from "ts-mongoose";
 
-export const utilityGroupModel = typedModel(
-	"utilityGroup",
-	schemes.UtilityGroupSchema,
-	"utilityGroups",
-);
-
 export const groupModel = typedModel("group", schemes.GroupSchema, "groups");
 
 export const specialtyModel = typedModel(
@@ -20,5 +14,3 @@ export const replacementModel = typedModel(
 	schemes.ReplacementSchema,
 	"replacements",
 );
-
-

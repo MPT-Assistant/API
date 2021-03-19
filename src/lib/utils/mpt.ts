@@ -67,21 +67,13 @@ const parseTeachers = (
 };
 
 interface MPT_Group {
-	id: string;
-	uid: string;
 	name: string;
 	specialty: string;
-	specialtyID: string;
 }
 
 interface MPT_Specialty {
-	id: string;
 	name: string;
-	groups: Array<{
-		id: string;
-		uid: string;
-		name: string;
-	}>;
+	groups: Array<string>;
 }
 
 class MPT {
@@ -431,26 +423,21 @@ class MPT {
 		const sourceData = this.data;
 
 		for (const group of sourceData.groups) {
-			if (!(await DB.models.utilityGroupModel.findOne({ uid: group.uid }))) {
-				const utilityGroupModel = new DB.models.utilityGroupModel(group);
-				await utilityGroupModel.save();
-			}
 			const currentSpecialty = sourceData.schedule.find(
-				(specialty) => specialty.id === group.specialtyID,
+				(specialty) => specialty.name === group.specialty,
 			) as Specialty;
 			const currentGroup = currentSpecialty.groups.find(
-				(x) => x.id === group.id,
+				(x) => x.name === group.name,
 			) as Group;
 
 			const groupSchedule = currentGroup.days;
 
-			let groupData = await DB.models.groupModel.findOne({ uid: group.uid });
+			let groupData = await DB.models.groupModel.findOne({ name: group.name });
 
 			if (!groupData) {
 				groupData = new DB.models.groupModel({
-					uid: group.uid,
-					id: group.id,
-					specialtyID: group.specialtyID,
+					name: group.name,
+					specialty: group.specialty,
 					schedule: groupSchedule,
 				});
 			} else {
@@ -462,16 +449,15 @@ class MPT {
 
 		for (const specialty of sourceData.specialties) {
 			let currentSpecialty = await DB.models.specialtyModel.findOne({
-				id: specialty.id,
+				name: specialty.name,
 			});
 			if (!currentSpecialty) {
 				currentSpecialty = new DB.models.specialtyModel({
-					id: specialty.id,
 					name: specialty.name,
-					groups: specialty.groups.map((group) => group.id),
+					groups: specialty.groups.map((group) => group),
 				});
 			} else {
-				currentSpecialty.groups = specialty.groups.map((group) => group.id);
+				currentSpecialty.groups = specialty.groups.map((group) => group);
 			}
 			await currentSpecialty.save();
 		}
@@ -494,23 +480,15 @@ class MPT {
 		const ParsedReplacements: Replacement[] = [];
 
 		for (const specialty of CurrentSchedule) {
-			const SpecialtyID = CryptoJS.SHA256(specialty.name).toString();
 			const OutputSpecialty =
 				ParsedSchedule[
 					ParsedSchedule.push({
-						id: SpecialtyID,
 						name: specialty.name,
 						groups: [],
 					}) - 1
 				];
 			for (const group of specialty.groups) {
-				const GroupID = CryptoJS.SHA256(group.name).toString();
-				const UnicalID = CryptoJS.SHA256(
-					`${specialty.name} | ${group.name}`,
-				).toString();
 				OutputSpecialty.groups.push({
-					id: GroupID,
-					uid: UnicalID,
 					name: group.name,
 					days: group.days,
 				});
@@ -522,7 +500,7 @@ class MPT {
 				for (const replacement of group.replacements) {
 					ParsedReplacements.push({
 						date: new Date(day.date),
-						uid: CryptoJS.SHA256(group.group).toString(),
+						group: group.group,
 						detected: new Date(),
 						addToSite: new Date(replacement.updated),
 						lessonNum: replacement.num,
@@ -545,23 +523,13 @@ class MPT {
 		for (const specialty of ParsedSchedule) {
 			for (const group of specialty.groups) {
 				ParsedGroups.push({
-					id: group.id,
-					uid: group.uid,
 					name: group.name,
 					specialty: specialty.name,
-					specialtyID: specialty.id,
 				});
 			}
 			ParsedSpecialties.push({
-				id: specialty.id,
 				name: specialty.name,
-				groups: specialty.groups.map((group) => {
-					return {
-						uid: group.uid,
-						id: group.id,
-						name: group.name,
-					};
-				}),
+				groups: specialty.groups.map((group) => group.name),
 			});
 		}
 
