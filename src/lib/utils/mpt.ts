@@ -15,6 +15,13 @@ import {
 
 import { DaySchema } from "./DB/schemes";
 
+const days = [	"понедельник",
+		"вторник",
+		"среда",
+		"четверг",
+		"пятница",
+		"суббота",]
+
 const getDayNum = (day: string): number => {
 	const days = [
 		/воскресенье/gi,
@@ -199,11 +206,13 @@ class MPT {
 									days: [],
 								}) - 1
 							];
+						let numDay = 0;
 						$(SelectedGroupLessons.children()[1])
 							.children()
 							.each(function (_dayIndex, dayElement) {
 								const SelectedDay = $(dayElement);
 								if (SelectedDay.prop("name") === "thead") {
+									numDay+=1;
 									let DayName: string;
 									let Place: string;
 									Place = $(
@@ -216,27 +225,16 @@ class MPT {
 										.text()
 										.trim();
 
-									DayName = $(
-										$(
-											$(
-												$($(SelectedDay.children()[0]).children()[0]),
-											).children()[0],
-										),
-									)
-										.text()
-										.replace(Place, "")
-										.trim();
-
 									Place = Place.replace(/\(|\)/gi, "");
 									Place === "" ? (Place = "Не указано") : null;
 
-									DayName = DayName[0] + DayName.slice(1).toLowerCase();
+									DayName = days[numDay];
 
 									const DayLessons = SelectedDay.next();
 									const CurrentDay =
 										CurrentGroup.days[
 											CurrentGroup.days.push({
-												num: getDayNum(DayName),
+												num: numDay,
 												place: Place,
 												name: DayName,
 												lessons: [],
@@ -272,7 +270,7 @@ class MPT {
 												}
 
 												for (let i = 0; i < LessonTeacher.length; i++) {
-													LessonTeacher[i] === ""
+													LessonTeacher[i] === "" || LessonTeacher[i] === "-"
 														? (LessonTeacher[i] = "Отсутствует")
 														: null;
 												}
