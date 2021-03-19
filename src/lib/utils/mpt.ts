@@ -10,7 +10,6 @@ import {
 	ParsedReplacements,
 	ParsedSchedule,
 	Replacement,
-	ReplacementGroup,
 	Specialty,
 	Week,
 } from "../../types/mpt";
