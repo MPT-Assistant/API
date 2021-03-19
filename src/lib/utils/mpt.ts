@@ -309,8 +309,6 @@ class MPT {
 
 		const ReplacementsList: ParsedReplacements = [];
 
-		// console.log(ReplacementsParsedList);
-
 		const TempReplacementsOnDay: {
 			date: Date;
 			replacements: Array<{
@@ -420,7 +418,6 @@ class MPT {
 							),
 						});
 					}
-					// process.exit();
 				}
 			}
 		});
