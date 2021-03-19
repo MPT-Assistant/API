@@ -14,3 +14,5 @@ export const replacementModel = typedModel(
 	schemes.ReplacementSchema,
 	"replacements",
 );
+
+export const dumpModel = typedModel("dump", schemes.DumpSchema, "dumps");

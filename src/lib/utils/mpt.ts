@@ -563,6 +563,11 @@ class MPT {
 				await new DB.models.replacementModel(replacement).save();
 			}
 		}
+
+		await new DB.models.dumpModel({
+			date: new Date(),
+			data: this.data,
+		}).save();
 	}
 
 	public async updateData(): Promise<void> {
@@ -635,6 +640,21 @@ class MPT {
 		this.data.lastUpdate = new Date();
 
 		await this.updateDataInDataBase();
+	}
+
+	public async restoreData(): Promise<void> {
+		const LastDump = await DB.models.dumpModel.findOne(
+			{},
+			{ sort: { $natural: -1 } },
+		);
+		if (LastDump) {
+			this.data.week = LastDump.data.week;
+			this.data.groups = LastDump.data.groups;
+			this.data.schedule = LastDump.data.schedule;
+			this.data.specialties = LastDump.data.specialties;
+			this.data.replacements = LastDump.data.replacements;
+			this.data.lastUpdate = LastDump.data.lastUpdate;
+		}
 	}
 }
 

@@ -37,4 +37,15 @@ const ReplacementSchema = createSchema({
 	hash: Type.string({ required: true }),
 });
 
-export { DaySchema, GroupSchema, SpecialtySchema, ReplacementSchema };
+const DumpSchema = createSchema({
+	date: Type.date({ required: true }),
+	data: Type.mixed({ required: true }),
+});
+
+export {
+	DaySchema,
+	GroupSchema,
+	SpecialtySchema,
+	ReplacementSchema,
+	DumpSchema,
+};
