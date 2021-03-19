@@ -21,7 +21,7 @@ const opts: RouteShorthandOptions = {
 
 server.post<{
     Body: Body;
-}>("/api/getGroupSchedule", opts, async (request) => {
+}>("/api/group.getSchedule", opts, async (request) => {
     const groupName = request.body.name;
 
     const groupData = InternalUtils.MPT.data.groups.find(
