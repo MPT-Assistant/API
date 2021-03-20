@@ -1,5 +1,5 @@
 import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../../main";
+import server from "../../../../lib/server";
 import InternalUtils from "../../../../lib/utils";
 
 interface Body {

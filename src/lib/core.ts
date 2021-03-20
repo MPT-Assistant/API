@@ -2,7 +2,7 @@ import { Interval } from "simple-scheduler-task";
 
 import InternalUtils from "./utils";
 
-import server from "../API/main";
+import server from "./server";
 import "../API/loader";
 
 InternalUtils.MPT.updateData().then();

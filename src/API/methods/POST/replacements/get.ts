@@ -1,5 +1,5 @@
 import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../../main";
+import server from "../../../../lib/server";
 import InternalUtils from "../../../../lib/utils";
 import moment from "moment";
 import { Replacement } from "../../../../types/mpt";
