@@ -16,19 +16,17 @@ const opts: RouteShorthandOptions = {
 	},
 };
 
-const replacementUnificator = (replacement: Replacement) => {
-	return {
-		date: moment(replacement.date).format("DD.MM.YYYY"),
-		name: replacement.group,
-		detected: replacement.detected,
-		addToSite: replacement.addToSite,
-		lessonNum: replacement.lessonNum,
-		oldLessonName: replacement.oldLessonName,
-		oldLessonTeacher: replacement.oldLessonTeacher,
-		newLessonName: replacement.newLessonName,
-		newLessonTeacher: replacement.newLessonTeacher,
-	};
-};
+const replacementUnificator = (replacement: Replacement) => ({
+	date: moment(replacement.date).format("DD.MM.YYYY"),
+	name: replacement.group,
+	detected: replacement.detected,
+	addToSite: replacement.addToSite,
+	lessonNum: replacement.lessonNum,
+	oldLessonName: replacement.oldLessonName,
+	oldLessonTeacher: replacement.oldLessonTeacher,
+	newLessonName: replacement.newLessonName,
+	newLessonTeacher: replacement.newLessonTeacher,
+});
 
 server.post<{
 	Body: Body;
