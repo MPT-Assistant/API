@@ -1,7 +1,8 @@
 import "./methods/POST/getCurrentWeek";
-import "./methods/POST/getReplacements";
 
 import "./methods/POST/group/get";
 import "./methods/POST/group/getList";
-import "./methods/POST/group/getReplacements";
-import "./methods/POST/group/getSchedule";
+
+import "./methods/POST/replacements/get";
+
+import "./methods/POST/schedule/get";
