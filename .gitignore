@@ -1,3 +1,6 @@
 /node_modules/
 /dist
+/.idea
 /src/DB/config.json
+test.js
+yarn-error.log
