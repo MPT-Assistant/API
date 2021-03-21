@@ -1,6 +1,6 @@
 import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../../../lib/server";
-import InternalUtils from "../../../../lib/utils";
+import server from "../../../../../lib/server";
+import InternalUtils from "../../../../../lib/utils";
 
 interface Body {
 	name: string;

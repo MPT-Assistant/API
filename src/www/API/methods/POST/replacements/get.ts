@@ -1,17 +1,19 @@
 import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../../../lib/server";
-import InternalUtils from "../../../../lib/utils";
+import server from "../../../../../lib/server";
+import InternalUtils from "../../../../../lib/utils";
 import moment from "moment";
-import { Replacement } from "../../../../types/mpt";
+import { Replacement } from "../../../../../types/mpt";
 
 interface Body {
 	name?: string;
+	date?: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
 		body: {
 			name: { type: "string" },
+			date: { type: "string" },
 		},
 	},
 };

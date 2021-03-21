@@ -1,5 +1,5 @@
-import server from "../../../lib/server";
-import InternalUtils from "../../../lib/utils";
+import server from "../../../../lib/server";
+import InternalUtils from "../../../../lib/utils";
 
 import moment from "moment";
 
