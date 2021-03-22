@@ -23,7 +23,7 @@ const opts: RouteShorthandOptions = {
 server.post<{
 	Body: Body;
 }>("/api/group.get", opts, async (request) => {
-	const selectedGroupName = request.body.name;
+	const selectedGroupName = request.body.name.toLowerCase();
 
 	const findGroup = InternalUtils.MPT.data.groups.find(
 		(group) => group.name.toLowerCase() === selectedGroupName,

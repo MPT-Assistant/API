@@ -420,7 +420,7 @@ class MPT {
 		return ReplacementsList;
 	}
 
-	public async getReplacementsOnDay(
+	public async parseReplacementsOnDay(
 		date: Date = new Date(),
 	): Promise<
 		Array<{
