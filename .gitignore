@@ -2,5 +2,5 @@
 /dist
 /.idea
 /src/DB/config.json
-test.js
+/test.*
 yarn-error.log

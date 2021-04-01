@@ -12,6 +12,7 @@ export default class Utils {
 		database: "API",
 	});
 
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	private constructor() {}
+	private constructor() {
+		return this;
+	}
 }

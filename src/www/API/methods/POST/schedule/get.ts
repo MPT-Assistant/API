@@ -1,7 +1,7 @@
 import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../../../lib/server";
-import InternalUtils from "../../../../lib/utils";
-import { Group, Specialty } from "../../../../types/mpt";
+import server from "../../../../../lib/server";
+import InternalUtils from "../../../../../lib/utils";
+import { Group, Specialty } from "../../../../../types/mpt";
 
 interface Body {
 	name: string;
@@ -24,10 +24,10 @@ const opts: RouteShorthandOptions = {
 server.post<{
 	Body: Body;
 }>("/api/schedule.get", opts, async (request) => {
-	const groupName = request.body.name;
+	const groupName = request.body.name.toLowerCase();
 
 	const groupData = InternalUtils.MPT.data.groups.find(
-		(group) => group.name === groupName,
+		(group) => group.name.toLowerCase() === groupName,
 	);
 
 	if (!groupData) {
@@ -35,7 +35,7 @@ server.post<{
 	}
 
 	const specialtyData = InternalUtils.MPT.data.schedule.find(
-		(specialty) => specialty.name === groupData.name,
+		(specialty) => specialty.name === groupData.specialty,
 	) as Specialty;
 
 	const groupSchedule = specialtyData.groups.find(

@@ -1,17 +1,20 @@
-import { RouteShorthandOptions } from "fastify/types/route";
-import server from "../../../../lib/server";
-import InternalUtils from "../../../../lib/utils";
 import moment from "moment";
-import { Replacement } from "../../../../types/mpt";
+
+import { RouteShorthandOptions } from "fastify/types/route";
+import server from "../../../../../lib/server";
+import InternalUtils from "../../../../../lib/utils";
+import { Replacement } from "../../../../../types/mpt";
 
 interface Body {
 	name?: string;
+	date?: string;
 }
 
 const opts: RouteShorthandOptions = {
 	schema: {
 		body: {
 			name: { type: "string" },
+			date: { type: "string" },
 		},
 	},
 };
@@ -32,10 +35,12 @@ server.post<{
 	Body: Body;
 }>("/api/replacements.get", opts, async (request) => {
 	if (request.body.name) {
-		const groupName = request.body.name;
+		const groupName = request.body.name.toLowerCase();
 
 		if (
-			!InternalUtils.MPT.data.groups.find((group) => group.name === groupName)
+			!InternalUtils.MPT.data.groups.find(
+				(group) => group.name.toLowerCase() === groupName,
+			)
 		) {
 			throw new Error("Group not found");
 		}
