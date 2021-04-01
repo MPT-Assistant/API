@@ -67,6 +67,16 @@ const parseTeachers = (
 	}
 };
 
+const fixNonDecodeString = (input: string): string => {
+	try {
+		return decodeURI(
+			input.replace("_2C ", ", ").replace("_2F", "/").replace(/_/gi, "%"),
+		);
+	} catch (error) {
+		return input;
+	}
+};
+
 interface MPT_Group {
 	name: string;
 	specialty: string;
@@ -177,8 +187,8 @@ class MPT {
 					const SelectedGroupLessons = $(SelectedSpecialty[2]).find(
 						"#" + GroupID,
 					);
-					const GroupNames = $(SelectedGroupLessons.children()[0])
-						.text()
+					const GroupNamesText = $(SelectedGroupLessons.children()[0]).text();
+					const GroupNames = fixNonDecodeString(GroupNamesText)
 						.replace("Группа ", "")
 						.split(", ");
 					for (const GroupName of GroupNames) {
