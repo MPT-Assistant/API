@@ -574,10 +574,7 @@ class MPT {
 			}
 		}
 
-		const LastDump = await DB.models.dumpModel.findOne(
-			{},
-			{ sort: { $natural: -1 } },
-		);
+		const LastDump = await DB.models.dumpModel.findOne({});
 
 		if (LastDump) {
 			LastDump.data = this.data;
@@ -665,10 +662,7 @@ class MPT {
 	}
 
 	public async restoreData(): Promise<void> {
-		const LastDump = await DB.models.dumpModel.findOne(
-			{},
-			{ sort: { $natural: -1 } },
-		);
+		const LastDump = await DB.models.dumpModel.findOne({});
 		if (LastDump) {
 			this.data.week = LastDump.data.week;
 			this.data.groups = LastDump.data.groups;
