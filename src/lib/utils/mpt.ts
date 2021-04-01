@@ -574,10 +574,22 @@ class MPT {
 			}
 		}
 
-		await new DB.models.dumpModel({
-			date: new Date(),
-			data: this.data,
-		}).save();
+		const LastDump = await DB.models.dumpModel.findOne(
+			{},
+			{ sort: { $natural: -1 } },
+		);
+
+		if (LastDump) {
+			LastDump.data = this.data;
+			LastDump.date = new Date();
+			LastDump.markModified("data");
+			await LastDump.save();
+		} else {
+			await new DB.models.dumpModel({
+				date: new Date(),
+				data: this.data,
+			}).save();
+		}
 	}
 
 	public async updateData(): Promise<void> {
