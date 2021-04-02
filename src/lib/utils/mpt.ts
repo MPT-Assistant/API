@@ -605,11 +605,15 @@ class MPT {
 						groups: [],
 					}) - 1
 				];
-			for (const group of specialty.groups) {
-				OutputSpecialty.groups.push({
-					name: group.name,
-					days: group.days,
-				});
+			for (const tempGroup of specialty.groups) {
+				if (
+					!OutputSpecialty.groups.find((group) => group.name === tempGroup.name)
+				) {
+					OutputSpecialty.groups.push({
+						name: tempGroup.name,
+						days: tempGroup.days,
+					});
+				}
 			}
 		}
 
