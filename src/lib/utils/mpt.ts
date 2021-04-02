@@ -414,9 +414,9 @@ class MPT {
 				SelectedElement.attr("class") === "table-responsive"
 			) {
 				const PreParsedData = SelectedElement.children().children();
-				const GroupsNames = $($(PreParsedData[0]).children()[0])
-					.text()
-					.split(", ");
+				const GroupsNames = fixNonDecodeString(
+					$($(PreParsedData[0]).children()[0]).text(),
+				).split(", ");
 				for (const group of GroupsNames) {
 					const ReplacementsTable = $(PreParsedData[1]).children();
 					for (let i = 1; i < ReplacementsTable.length; i++) {
@@ -496,10 +496,9 @@ class MPT {
 			) {
 				const SelectedReplacementList = $(replacementListElement);
 				if (SelectedReplacementList.get()[0].name === "table") {
-					for (const group of SelectedReplacementList.children()
-						.first()
-						.text()
-						.split(", ")) {
+					for (const group of fixNonDecodeString(
+						SelectedReplacementList.children().first().text(),
+					).split(", ")) {
 						const GroupReplacementsList =
 							ReplacementsList[
 								ReplacementsList.push({
