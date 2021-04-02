@@ -574,10 +574,19 @@ class MPT {
 			}
 		}
 
-		await new DB.models.dumpModel({
-			date: new Date(),
-			data: this.data,
-		}).save();
+		const LastDump = await DB.models.dumpModel.findOne({});
+
+		if (LastDump) {
+			LastDump.data = this.data;
+			LastDump.date = new Date();
+			LastDump.markModified("data");
+			await LastDump.save();
+		} else {
+			await new DB.models.dumpModel({
+				date: new Date(),
+				data: this.data,
+			}).save();
+		}
 	}
 
 	public async updateData(): Promise<void> {
@@ -596,11 +605,15 @@ class MPT {
 						groups: [],
 					}) - 1
 				];
-			for (const group of specialty.groups) {
-				OutputSpecialty.groups.push({
-					name: group.name,
-					days: group.days,
-				});
+			for (const tempGroup of specialty.groups) {
+				if (
+					!OutputSpecialty.groups.find((group) => group.name === tempGroup.name)
+				) {
+					OutputSpecialty.groups.push({
+						name: tempGroup.name,
+						days: tempGroup.days,
+					});
+				}
 			}
 		}
 
@@ -653,10 +666,7 @@ class MPT {
 	}
 
 	public async restoreData(): Promise<void> {
-		const LastDump = await DB.models.dumpModel.findOne(
-			{},
-			{ sort: { $natural: -1 } },
-		);
+		const LastDump = await DB.models.dumpModel.findOne({});
 		if (LastDump) {
 			this.data.week = LastDump.data.week;
 			this.data.groups = LastDump.data.groups;
