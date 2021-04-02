@@ -5,6 +5,8 @@ import moment from "moment";
 import CryptoJS from "crypto-js";
 import DB from "./DB";
 
+import Timetable from "../../DB/timetable.json";
+
 import {
 	Group,
 	ParsedReplacements,
@@ -87,6 +89,21 @@ interface MPT_Specialty {
 	groups: Array<string>;
 }
 
+interface TimetableElement {
+	num: number;
+	type: "lesson" | "recess";
+	start: {
+		hour: number;
+		minute: number;
+	};
+	end: {
+		hour: number;
+		minute: number;
+	};
+}
+
+type TimetableType = TimetableElement[];
+
 class MPT {
 	public readonly data: {
 		week: Week;
@@ -94,6 +111,7 @@ class MPT {
 		replacements: Replacement[];
 		groups: MPT_Group[];
 		specialties: MPT_Specialty[];
+		timetable: TimetableType;
 		lastUpdate: Date;
 	} = {
 		week: "Не определено",
@@ -101,6 +119,7 @@ class MPT {
 		replacements: [],
 		groups: [],
 		specialties: [],
+		timetable: Timetable as TimetableType,
 		lastUpdate: new Date(),
 	};
 
