@@ -638,19 +638,25 @@ class MPT {
 		for (const day of CurrentReplacements) {
 			for (const group of day.groups) {
 				for (const replacement of group.replacements) {
+					const ReplacementHash = CryptoJS.SHA256(
+						`${day.date} | ${group.group} / ${JSON.stringify(replacement)}`,
+					).toString();
+					const replacementInData = this.data.replacements.find(
+						(replacement) => replacement.hash === ReplacementHash,
+					);
 					ParsedReplacements.push({
 						date: new Date(day.date),
 						group: group.group,
-						detected: new Date(),
+						detected: replacementInData
+							? replacementInData.detected
+							: new Date(),
 						addToSite: new Date(replacement.updated),
 						lessonNum: replacement.num,
 						oldLessonName: replacement.old.name,
 						oldLessonTeacher: replacement.old.teacher,
 						newLessonName: replacement.new.name,
 						newLessonTeacher: replacement.new.teacher,
-						hash: CryptoJS.SHA256(
-							`${day.date} | ${group.group} / ${JSON.stringify(replacement)}`,
-						).toString(),
+						hash: ReplacementHash,
 					});
 				}
 			}
