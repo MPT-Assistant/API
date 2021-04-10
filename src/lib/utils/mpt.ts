@@ -3,8 +3,8 @@ import cheerio from "cheerio";
 import moment from "moment";
 
 import CryptoJS from "crypto-js";
-import DB from "./DB";
 
+import InternalUtils from "../utils";
 import Timetable from "../../DB/timetable.json";
 
 import {
@@ -17,6 +17,8 @@ import {
 } from "../../types/mpt";
 
 import { DaySchema } from "./DB/schemes";
+
+const { API_DB } = InternalUtils;
 
 const days = [
 	"Воскресенье",
@@ -554,10 +556,12 @@ class MPT {
 
 			const groupSchedule = currentGroup.days;
 
-			let groupData = await DB.models.groupModel.findOne({ name: group.name });
+			let groupData = await API_DB.models.group.findOne({
+				name: group.name,
+			});
 
 			if (!groupData) {
-				groupData = new DB.models.groupModel({
+				groupData = new API_DB.models.group({
 					name: group.name,
 					specialty: group.specialty,
 					schedule: groupSchedule,
@@ -570,11 +574,11 @@ class MPT {
 		}
 
 		for (const specialty of sourceData.specialties) {
-			let currentSpecialty = await DB.models.specialtyModel.findOne({
+			let currentSpecialty = await API_DB.models.specialty.findOne({
 				name: specialty.name,
 			});
 			if (!currentSpecialty) {
-				currentSpecialty = new DB.models.specialtyModel({
+				currentSpecialty = new API_DB.models.specialty({
 					name: specialty.name,
 					groups: specialty.groups.map((group) => group),
 				});
@@ -586,13 +590,15 @@ class MPT {
 
 		for (const replacement of sourceData.replacements) {
 			if (
-				!(await DB.models.replacementModel.findOne({ hash: replacement.hash }))
+				!(await API_DB.models.replacement.findOne({
+					hash: replacement.hash,
+				}))
 			) {
-				await new DB.models.replacementModel(replacement).save();
+				await new API_DB.models.replacement(replacement).save();
 			}
 		}
 
-		const LastDump = await DB.models.dumpModel.findOne({});
+		const LastDump = await API_DB.models.dump.findOne({});
 
 		if (LastDump) {
 			LastDump.data = this.data;
@@ -600,7 +606,7 @@ class MPT {
 			LastDump.markModified("data");
 			await LastDump.save();
 		} else {
-			await new DB.models.dumpModel({
+			await new API_DB.models.dump({
 				date: new Date(),
 				data: this.data,
 			}).save();
@@ -690,7 +696,7 @@ class MPT {
 	}
 
 	public async restoreData(): Promise<void> {
-		const LastDump = await DB.models.dumpModel.findOne({});
+		const LastDump = await API_DB.models.dump.findOne({});
 		if (LastDump) {
 			this.data.week = LastDump.data.week;
 			this.data.groups = LastDump.data.groups;

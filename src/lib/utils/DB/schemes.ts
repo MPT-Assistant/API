@@ -54,10 +54,33 @@ const DumpSchema = createSchema(
 	{ versionKey: false, _id: false },
 );
 
+const UserSchema = createSchema({
+	id: Type.number({ required: true, unique: true }),
+	nickname: Type.string({ required: true }),
+	ban: Type.boolean({ required: true }),
+	group: Type.string({ required: true }),
+	inform: Type.boolean({ required: true }),
+	reported_replacements: Type.array({ required: true }).of(
+		Type.string({ required: true }),
+	),
+	reg_date: Type.date({ required: true }),
+});
+
+const ChatSchema = createSchema({
+	id: Type.number({ required: true, unique: true }),
+	group: Type.string({ required: true }),
+	inform: Type.boolean({ required: true }),
+	reported_replacements: Type.array({ required: true }).of(
+		Type.string({ required: true }),
+	),
+});
+
 export {
 	DaySchema,
 	GroupSchema,
 	SpecialtySchema,
 	ReplacementSchema,
 	DumpSchema,
+	UserSchema,
+	ChatSchema,
 };
