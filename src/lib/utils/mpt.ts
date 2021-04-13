@@ -18,8 +18,6 @@ import {
 
 import { DaySchema } from "./DB/schemes";
 
-const { API_DB } = InternalUtils;
-
 const days = [
 	"Воскресенье",
 	"Понедельник",
@@ -556,12 +554,12 @@ class MPT {
 
 			const groupSchedule = currentGroup.days;
 
-			let groupData = await API_DB.models.group.findOne({
+			let groupData = await InternalUtils.API_DB.models.group.findOne({
 				name: group.name,
 			});
 
 			if (!groupData) {
-				groupData = new API_DB.models.group({
+				groupData = new InternalUtils.API_DB.models.group({
 					name: group.name,
 					specialty: group.specialty,
 					schedule: groupSchedule,
@@ -574,11 +572,13 @@ class MPT {
 		}
 
 		for (const specialty of sourceData.specialties) {
-			let currentSpecialty = await API_DB.models.specialty.findOne({
-				name: specialty.name,
-			});
+			let currentSpecialty = await InternalUtils.API_DB.models.specialty.findOne(
+				{
+					name: specialty.name,
+				},
+			);
 			if (!currentSpecialty) {
-				currentSpecialty = new API_DB.models.specialty({
+				currentSpecialty = new InternalUtils.API_DB.models.specialty({
 					name: specialty.name,
 					groups: specialty.groups.map((group) => group),
 				});
@@ -590,15 +590,15 @@ class MPT {
 
 		for (const replacement of sourceData.replacements) {
 			if (
-				!(await API_DB.models.replacement.findOne({
+				!(await InternalUtils.API_DB.models.replacement.findOne({
 					hash: replacement.hash,
 				}))
 			) {
-				await new API_DB.models.replacement(replacement).save();
+				await new InternalUtils.API_DB.models.replacement(replacement).save();
 			}
 		}
 
-		const LastDump = await API_DB.models.dump.findOne({});
+		const LastDump = await InternalUtils.API_DB.models.dump.findOne({});
 
 		if (LastDump) {
 			LastDump.data = this.data;
@@ -606,7 +606,7 @@ class MPT {
 			LastDump.markModified("data");
 			await LastDump.save();
 		} else {
-			await new API_DB.models.dump({
+			await new InternalUtils.API_DB.models.dump({
 				date: new Date(),
 				data: this.data,
 			}).save();
@@ -696,7 +696,7 @@ class MPT {
 	}
 
 	public async restoreData(): Promise<void> {
-		const LastDump = await API_DB.models.dump.findOne({});
+		const LastDump = await InternalUtils.API_DB.models.dump.findOne({});
 		if (LastDump) {
 			this.data.week = LastDump.data.week;
 			this.data.groups = LastDump.data.groups;

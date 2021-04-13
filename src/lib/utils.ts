@@ -21,7 +21,7 @@ export default class Utils {
 	});
 
 	public static verifyLaunchParams(query: string): boolean {
-		let sign;
+		let sign: string | undefined;
 		const hashQueryParams: {
 			key: string;
 			value: string;
