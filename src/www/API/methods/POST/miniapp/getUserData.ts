@@ -28,7 +28,7 @@ const opts: RouteShorthandOptions = {
 
 server.post<{
 	Body: Body;
-}>("/api/miniapp.getUserdata", opts, async (request) => {
+}>("/api/miniapp.getUserData", opts, async (request) => {
 	if (typeof request.body.id === "number") {
 		request.body.id = [request.body.id];
 	}
