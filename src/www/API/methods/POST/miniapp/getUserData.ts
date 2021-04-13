@@ -10,25 +10,22 @@ interface Body {
 const opts: RouteShorthandOptions = {
 	schema: {
 		body: {
-			id: { type: "string" },
 			sign: { type: "string" },
 		},
-	},
-	preValidation: (request, reply, done) => {
-		const { id, sign } = request.body as Body;
-		if (!sign || InternalUtils.verifyLaunchParams(sign)) {
-			new Error("Sign not specified or invalid");
-		}
-		if (!id || id <= 0) {
-			new Error("ID not specified");
-		}
-		done();
 	},
 };
 
 server.post<{
 	Body: Body;
 }>("/api/miniapp.getUserData", opts, async (request) => {
+	if (!InternalUtils.verifyLaunchParams(request.body.sign || "")) {
+		throw new Error("Sign not specified or invalid");
+	}
+
+	if (!request.body.id || Number(request.body.id) <= 0) {
+		throw new Error("ID not specified");
+	}
+
 	if (typeof request.body.id === "number") {
 		request.body.id = [request.body.id];
 	}
