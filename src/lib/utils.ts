@@ -1,3 +1,4 @@
+import CryptoJS from "crypto-js";
 import MPT from "./utils/mpt";
 import { API_DB, VK_Bot_DB } from "./utils/DB";
 
