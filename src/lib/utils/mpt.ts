@@ -3,7 +3,9 @@ import cheerio from "cheerio";
 import moment from "moment";
 
 import CryptoJS from "crypto-js";
-import DB from "./DB";
+
+import InternalUtils from "../utils";
+import Timetable from "../../DB/timetable.json";
 
 import {
 	Group,
@@ -87,6 +89,21 @@ interface MPT_Specialty {
 	groups: Array<string>;
 }
 
+interface TimetableElement {
+	num: number;
+	type: "lesson" | "recess";
+	start: {
+		hour: number;
+		minute: number;
+	};
+	end: {
+		hour: number;
+		minute: number;
+	};
+}
+
+type TimetableType = TimetableElement[];
+
 class MPT {
 	public readonly data: {
 		week: Week;
@@ -94,6 +111,7 @@ class MPT {
 		replacements: Replacement[];
 		groups: MPT_Group[];
 		specialties: MPT_Specialty[];
+		timetable: TimetableType;
 		lastUpdate: Date;
 	} = {
 		week: "Не определено",
@@ -101,6 +119,7 @@ class MPT {
 		replacements: [],
 		groups: [],
 		specialties: [],
+		timetable: Timetable as TimetableType,
 		lastUpdate: new Date(),
 	};
 
@@ -395,9 +414,9 @@ class MPT {
 				SelectedElement.attr("class") === "table-responsive"
 			) {
 				const PreParsedData = SelectedElement.children().children();
-				const GroupsNames = $($(PreParsedData[0]).children()[0])
-					.text()
-					.split(", ");
+				const GroupsNames = fixNonDecodeString(
+					$($(PreParsedData[0]).children()[0]).text(),
+				).split(", ");
 				for (const group of GroupsNames) {
 					const ReplacementsTable = $(PreParsedData[1]).children();
 					for (let i = 1; i < ReplacementsTable.length; i++) {
@@ -477,10 +496,9 @@ class MPT {
 			) {
 				const SelectedReplacementList = $(replacementListElement);
 				if (SelectedReplacementList.get()[0].name === "table") {
-					for (const group of SelectedReplacementList.children()
-						.first()
-						.text()
-						.split(", ")) {
+					for (const group of fixNonDecodeString(
+						SelectedReplacementList.children().first().text(),
+					).split(", ")) {
 						const GroupReplacementsList =
 							ReplacementsList[
 								ReplacementsList.push({
@@ -536,10 +554,12 @@ class MPT {
 
 			const groupSchedule = currentGroup.days;
 
-			let groupData = await DB.models.groupModel.findOne({ name: group.name });
+			let groupData = await InternalUtils.API_DB.models.group.findOne({
+				name: group.name,
+			});
 
 			if (!groupData) {
-				groupData = new DB.models.groupModel({
+				groupData = new InternalUtils.API_DB.models.group({
 					name: group.name,
 					specialty: group.specialty,
 					schedule: groupSchedule,
@@ -552,11 +572,13 @@ class MPT {
 		}
 
 		for (const specialty of sourceData.specialties) {
-			let currentSpecialty = await DB.models.specialtyModel.findOne({
-				name: specialty.name,
-			});
+			let currentSpecialty = await InternalUtils.API_DB.models.specialty.findOne(
+				{
+					name: specialty.name,
+				},
+			);
 			if (!currentSpecialty) {
-				currentSpecialty = new DB.models.specialtyModel({
+				currentSpecialty = new InternalUtils.API_DB.models.specialty({
 					name: specialty.name,
 					groups: specialty.groups.map((group) => group),
 				});
@@ -568,13 +590,15 @@ class MPT {
 
 		for (const replacement of sourceData.replacements) {
 			if (
-				!(await DB.models.replacementModel.findOne({ hash: replacement.hash }))
+				!(await InternalUtils.API_DB.models.replacement.findOne({
+					hash: replacement.hash,
+				}))
 			) {
-				await new DB.models.replacementModel(replacement).save();
+				await new InternalUtils.API_DB.models.replacement(replacement).save();
 			}
 		}
 
-		const LastDump = await DB.models.dumpModel.findOne({});
+		const LastDump = await InternalUtils.API_DB.models.dump.findOne({});
 
 		if (LastDump) {
 			LastDump.data = this.data;
@@ -582,7 +606,7 @@ class MPT {
 			LastDump.markModified("data");
 			await LastDump.save();
 		} else {
-			await new DB.models.dumpModel({
+			await new InternalUtils.API_DB.models.dump({
 				date: new Date(),
 				data: this.data,
 			}).save();
@@ -620,19 +644,25 @@ class MPT {
 		for (const day of CurrentReplacements) {
 			for (const group of day.groups) {
 				for (const replacement of group.replacements) {
+					const ReplacementHash = CryptoJS.SHA256(
+						`${day.date} | ${group.group} / ${JSON.stringify(replacement)}`,
+					).toString();
+					const replacementInData = this.data.replacements.find(
+						(replacement) => replacement.hash === ReplacementHash,
+					);
 					ParsedReplacements.push({
 						date: new Date(day.date),
 						group: group.group,
-						detected: new Date(),
+						detected: replacementInData
+							? replacementInData.detected
+							: new Date(),
 						addToSite: new Date(replacement.updated),
 						lessonNum: replacement.num,
 						oldLessonName: replacement.old.name,
 						oldLessonTeacher: replacement.old.teacher,
 						newLessonName: replacement.new.name,
 						newLessonTeacher: replacement.new.teacher,
-						hash: CryptoJS.SHA256(
-							`${day.date} | ${group.group} / ${JSON.stringify(replacement)}`,
-						).toString(),
+						hash: ReplacementHash,
 					});
 				}
 			}
@@ -666,7 +696,7 @@ class MPT {
 	}
 
 	public async restoreData(): Promise<void> {
-		const LastDump = await DB.models.dumpModel.findOne({});
+		const LastDump = await InternalUtils.API_DB.models.dump.findOne({});
 		if (LastDump) {
 			this.data.week = LastDump.data.week;
 			this.data.groups = LastDump.data.groups;
