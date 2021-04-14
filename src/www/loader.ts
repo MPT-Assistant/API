@@ -13,6 +13,7 @@ import "./API/methods/POST/replacements/get";
 import "./API/methods/POST/schedule/get";
 
 import "./API/methods/POST/miniapp/getUserData";
+import "./API/methods/POST/miniapp/setUserGroup";
 
 server.register(fastifyStatic, {
 	root: path.join(__dirname, "./front"),
