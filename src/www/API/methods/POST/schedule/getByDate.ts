@@ -20,7 +20,9 @@ const opts: RouteShorthandOptions = {
 	preValidation: (request, reply, done) => {
 		const { group } = request.body as Body;
 		done(
-			!group || group === "" ? new Error("Group name not specified") : undefined,
+			!group || group === ""
+				? new Error("Group name not specified")
+				: undefined,
 		);
 	},
 };
@@ -30,7 +32,7 @@ server.post<{
 }>("/api/schedule.getByDate", opts, async (request) => {
 	request.body.replacements = request.body.replacements || false;
 
-	const selectedDate = moment(request.body.date);
+	const selectedDate = moment(request.body.date || "", "DD.MM.YYYY");
 
 	if (!selectedDate.isValid()) {
 		throw new Error("Invalid date");
@@ -55,7 +57,7 @@ server.post<{
 	) as Group;
 
 	const selectedDay = groupSchedule.days.find(
-		(day) => day.num === selectedDate.day() - 1,
+		(day) => day.num === selectedDate.day(),
 	);
 
 	if (!selectedDay) {
