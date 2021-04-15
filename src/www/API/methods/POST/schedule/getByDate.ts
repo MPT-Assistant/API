@@ -6,7 +6,7 @@ import InternalUtils from "../../../../../lib/utils";
 import { Group, Specialty, Week } from "../../../../../types/mpt";
 
 interface Body {
-	name: string;
+	group: string;
 	date: string;
 	replacements?: boolean;
 }
@@ -14,13 +14,13 @@ interface Body {
 const opts: RouteShorthandOptions = {
 	schema: {
 		body: {
-			name: { type: "string" },
+			group: { type: "string" },
 		},
 	},
 	preValidation: (request, reply, done) => {
-		const { name } = request.body as Body;
+		const { group } = request.body as Body;
 		done(
-			!name || name === "" ? new Error("Group name not specified") : undefined,
+			!group || group === "" ? new Error("Group name not specified") : undefined,
 		);
 	},
 };
@@ -36,7 +36,7 @@ server.post<{
 		throw new Error("Invalid date");
 	}
 
-	const groupName = request.body.name.toLowerCase();
+	const groupName = request.body.group.toLowerCase();
 
 	const groupData = InternalUtils.MPT.data.groups.find(
 		(group) => group.name.toLowerCase() === groupName,
