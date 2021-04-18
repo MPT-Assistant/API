@@ -66,8 +66,8 @@ server.post<{
 
 	let selectedDateWeekLegend: Week;
 
-	const currentWeek = moment().week();
-	if (currentWeek % 2 === selectedDate.week() % 2) {
+	const currentWeek = moment().isoWeek();
+	if (currentWeek % 2 === selectedDate.isoWeek() % 2) {
 		selectedDateWeekLegend = InternalUtils.MPT.data.week;
 	} else {
 		selectedDateWeekLegend =
