@@ -58,6 +58,14 @@ interface ReplacementDay {
 	groups: ReplacementGroup[];
 }
 
+interface Classroom {
+	study: string;
+	groups: {
+		lesson: number;
+		group: string[];
+	}[];
+}
+
 type ParsedReplacements = ReplacementDay[];
 
 type Replacement = {
@@ -82,4 +90,5 @@ export {
 	Week,
 	Replacement,
 	ReplacementGroup,
+	Classroom,
 };
