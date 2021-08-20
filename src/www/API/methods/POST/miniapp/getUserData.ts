@@ -39,11 +39,13 @@ server.post<{
 		},
 	});
 
-	return selectedUsers.map((user) => {
-		return {
-			id: user.id,
-			group: user.group,
-			reg_date: user.reg_date,
-		};
-	});
+	return {
+		response: selectedUsers.map((user) => {
+			return {
+				id: user.id,
+				group: user.group,
+				reg_date: user.reg_date,
+			};
+		})
+	}
 });

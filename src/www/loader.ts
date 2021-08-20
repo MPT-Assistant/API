@@ -11,6 +11,7 @@ import "./API/methods/POST/group/getList";
 import "./API/methods/POST/replacements/get";
 
 import "./API/methods/POST/schedule/get";
+import "./API/methods/POST/schedule/getByDate";
 
 import "./API/methods/POST/miniapp/getUserData";
 import "./API/methods/POST/miniapp/setUserGroup";

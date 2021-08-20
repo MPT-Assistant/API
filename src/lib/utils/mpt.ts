@@ -2,12 +2,15 @@ import axios from "axios";
 import cheerio from "cheerio";
 import moment from "moment";
 
+import ConvertExcelToJSON from "convert-excel-to-json";
+
 import CryptoJS from "crypto-js";
 
 import InternalUtils from "../utils";
 import Timetable from "../../DB/timetable.json";
 
 import {
+	Classroom,
 	Group,
 	ParsedReplacements,
 	ParsedSchedule,
@@ -447,6 +450,50 @@ class MPT {
 		processReplacementsOnDay();
 
 		return ReplacementsList;
+	}
+
+	public parseClassrooms(source: Buffer): Classroom[] {
+		const parsedTable = ConvertExcelToJSON({
+			sourceFile: source.toString(),
+		});
+
+		const studyQuery = ["AM", "AN", "AO", "AP", "AQ", "AR", "AS"];
+
+		const output: Classroom[] = [];
+
+		for (const [, value] of Object.entries(parsedTable)) {
+			for (const line of value) {
+				if (line.AK && line.AK !== "ауд.") {
+					const studyData =
+						output[
+							output.push({
+								study: line.AK,
+								groups: [],
+							}) - 1
+						];
+
+					for (const query of studyQuery) {
+						const parsedGroupName: string[] = [];
+						const splittedName = line[query].split(" ");
+						for (let i = 0; i < splittedName.length; i++) {
+							if (Number(splittedName[i + 1])) {
+								parsedGroupName.push(splittedName[i] + splittedName[i + 1]);
+							}
+						}
+
+						const queryElement = line[query];
+						if (queryElement && queryElement !== "  ") {
+							studyData.groups.push({
+								lesson: studyQuery.indexOf(query) + 1,
+								group: parsedGroupName,
+							});
+						}
+					}
+				}
+			}
+		}
+
+		return output;
 	}
 
 	public async parseReplacementsOnDay(
