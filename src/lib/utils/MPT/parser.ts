@@ -304,7 +304,7 @@ class MPT_Parser {
 			replacements: [],
 		};
 
-		const processReplacementsOnDay = () => {
+		function processReplacementsOnDay() {
 			const replacementsOnThisDay = tempReplacementsOnDay.replacements.map(
 				(tempReplacement) => {
 					const oldLessonData = parseTeachers(tempReplacement.oldLesson);
@@ -318,31 +318,24 @@ class MPT_Parser {
 						newLessonName: newLessonData.input,
 						updated: tempReplacement.updated.valueOf(),
 					};
-				},
+				}
 			);
 
 			for (const tempReplacement of replacementsOnThisDay) {
-				const replacementDay =
-					replacementsList.find(
-						(x: { date: number }) =>
-							x.date === tempReplacementsOnDay.date.valueOf(),
-					) ||
-					replacementsList[
-						replacementsList.push({
-							date: tempReplacementsOnDay.date.valueOf(),
-							groups: [],
-						}) - 1
-					];
-				const groupWithReplacements =
-					replacementDay.groups.find(
-						(x: { group: string }) => x.group === tempReplacement.group,
-					) ||
-					replacementDay.groups[
-						replacementDay.groups.push({
-							group: tempReplacement.group,
-							replacements: [],
-						}) - 1
-					];
+				const replacementDay = replacementsList.find(
+					(x: { date: number; }) => x.date === tempReplacementsOnDay.date.valueOf()
+				) ||
+					replacementsList[replacementsList.push({
+						date: tempReplacementsOnDay.date.valueOf(),
+						groups: [],
+					}) - 1];
+				const groupWithReplacements = replacementDay.groups.find(
+					(x: { group: string; }) => x.group === tempReplacement.group
+				) ||
+					replacementDay.groups[replacementDay.groups.push({
+						group: tempReplacement.group,
+						replacements: [],
+					}) - 1];
 				groupWithReplacements.replacements.push({
 					num: tempReplacement.num,
 					new: {
@@ -356,7 +349,7 @@ class MPT_Parser {
 					updated: tempReplacement.updated,
 				});
 			}
-		};
+		}
 
 		replacementsParsedList.each(function (_elementIndex, element) {
 			const selectedElement = $(element);
