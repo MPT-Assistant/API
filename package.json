@@ -17,8 +17,11 @@
 		"typescript-eslint": "^0.0.1-alpha.0"
 	},
 	"dependencies": {
+		"@types/mongoose": "^5.11.97",
 		"axios": "^0.21.1",
 		"cheerio": "^1.0.0-rc.10",
-		"moment": "^2.29.1"
+		"moment": "^2.29.1",
+		"mongoose": "^6.1.2",
+		"ts-mongoose": "^0.0.24"
 	}
 }
