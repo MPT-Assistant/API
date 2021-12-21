@@ -1,6 +1,4 @@
 /node_modules/
-/dist
-/.idea
+/dist/
 /src/DB/config.json
-/test.*
-yarn-error.log
+yarn.lock

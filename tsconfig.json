@@ -1,14 +1,17 @@
 {
 	"compilerOptions": {
+		"rootDir": "./src/",
+		"outDir": "./dist/",
 		"target": "ESNext",
 		"module": "CommonJS",
-		"outDir": "./dist/",
+		"moduleResolution": "Node",
+		"declaration": false,
 		"strict": true,
-		"alwaysStrict": true,
-		"rootDir": "./src/",
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": true
-	}
+		"resolveJsonModule": true,
+		"noImplicitAny": true
+	},
+	"include": ["./src"]
 }
