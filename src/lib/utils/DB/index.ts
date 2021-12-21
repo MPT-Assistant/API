@@ -16,6 +16,7 @@ class DB {
 	);
 
 	public readonly timetable = timetable;
+	public readonly schemes = schemes;
 	public readonly models = {
 		group: typedModel(
 			"group",

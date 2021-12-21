@@ -1,4 +1,5 @@
 import { SHA512 } from "crypto-js";
+import { ExtractDoc } from "ts-mongoose";
 
 import internalUtils from "../index";
 import parser from "./parser";
@@ -73,9 +74,14 @@ export default class MPT {
 		if (!config) {
 			await internalUtils.DB.models.config.insertMany({
 				currentWeek,
+				timetable: internalUtils.DB.timetable,
 			});
 		} else {
 			config.currentWeek = currentWeek;
+
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			//@ts-ignore
+			config.timetable = internalUtils.DB.timetable as unknown;
 			await config.save();
 		}
 	}
