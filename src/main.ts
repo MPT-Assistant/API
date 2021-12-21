@@ -1,5 +1,8 @@
 import internalUtils from "./lib/utils";
 
 (async function () {
-	console.log(await internalUtils.mpt.parser.getCurrentWeek());
+	internalUtils.DB.connection.once("open", async () => {
+		await internalUtils.MPT.updateReplacementsList();
+		console.log(`Executed`);
+	});
 })();

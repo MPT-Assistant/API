@@ -21,7 +21,7 @@ const daySchema = createSchema(
 
 const groupSchema = createSchema(
 	{
-		name: Type.string({ required: true }),
+		name: Type.string({ required: true, unique: true }),
 		specialty: Type.string({ required: true }),
 		schedule: Type.array({ required: true }).of(daySchema),
 	},
@@ -39,7 +39,7 @@ const replacementSchema = createSchema(
 		oldLessonTeacher: Type.string({ required: true }),
 		newLessonName: Type.string({ required: true }),
 		newLessonTeacher: Type.string({ required: true }),
-		hash: Type.string({ required: true }),
+		hash: Type.string({ required: true, unique: true }),
 	},
 	{ versionKey: false },
 );
