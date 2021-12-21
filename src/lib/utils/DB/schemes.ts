@@ -44,4 +44,11 @@ const replacementSchema = createSchema(
 	{ versionKey: false },
 );
 
-export default { groupSchema, replacementSchema };
+const configScheme = createSchema(
+	{
+		currentWeek: Type.string({ required: true }),
+	},
+	{ versionKey: false },
+);
+
+export default { configScheme, groupSchema, replacementSchema };

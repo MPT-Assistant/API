@@ -65,4 +65,18 @@ export default class MPT {
 			})
 			.catch(() => null);
 	}
+
+	public async updateConfig(): Promise<void> {
+		const currentWeek = await this.parser.getCurrentWeek();
+		const config = await internalUtils.DB.models.config.findOne();
+
+		if (!config) {
+			await internalUtils.DB.models.config.insertMany({
+				currentWeek,
+			});
+		} else {
+			config.currentWeek = currentWeek;
+			await config.save();
+		}
+	}
 }

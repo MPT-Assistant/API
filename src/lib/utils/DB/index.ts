@@ -33,6 +33,14 @@ class DB {
 			undefined,
 			this.connection,
 		),
+		config: typedModel(
+			"config",
+			schemes.configScheme,
+			"config",
+			undefined,
+			undefined,
+			this.connection,
+		),
 	};
 }
 
