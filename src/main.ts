@@ -5,7 +5,7 @@ import internalUtils from "./lib/utils";
 		setInterval(() => {
 			internalUtils.MPT.updateGroupsList();
 			internalUtils.MPT.updateReplacementsList();
-			internalUtils.MPT.updateConfig();
+			internalUtils.MPT.updateInfo();
 		}, 5 * 60 * 1000);
 	});
 })();
