@@ -1,5 +1,4 @@
 import { SHA512 } from "crypto-js";
-import { ExtractDoc } from "ts-mongoose";
 
 import internalUtils from "../index";
 import parser from "./parser";
@@ -67,22 +66,22 @@ export default class MPT {
 			.catch(() => null);
 	}
 
-	public async updateConfig(): Promise<void> {
+	public async updateInfo(): Promise<void> {
 		const currentWeek = await this.parser.getCurrentWeek();
-		const config = await internalUtils.DB.models.config.findOne();
+		const info = await internalUtils.DB.models.info.findOne();
 
-		if (!config) {
-			await internalUtils.DB.models.config.insertMany({
+		if (!info) {
+			await internalUtils.DB.models.info.insertMany({
 				currentWeek,
 				timetable: internalUtils.DB.timetable,
 			});
 		} else {
-			config.currentWeek = currentWeek;
+			info.currentWeek = currentWeek;
 
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			//@ts-ignore
-			config.timetable = internalUtils.DB.timetable as unknown;
-			await config.save();
+			info.timetable = internalUtils.DB.timetable;
+			await info.save();
 		}
 	}
 }

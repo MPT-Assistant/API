@@ -34,10 +34,10 @@ class DB {
 			undefined,
 			this.connection,
 		),
-		config: typedModel(
-			"config",
-			schemes.configScheme,
-			"config",
+		info: typedModel(
+			"info",
+			schemes.infoSchema,
+			"info",
 			undefined,
 			undefined,
 			this.connection,
