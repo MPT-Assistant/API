@@ -318,24 +318,31 @@ class MPT_Parser {
 						newLessonName: newLessonData.input,
 						updated: tempReplacement.updated.valueOf(),
 					};
-				}
+				},
 			);
 
 			for (const tempReplacement of replacementsOnThisDay) {
-				const replacementDay = replacementsList.find(
-					(x: { date: number; }) => x.date === tempReplacementsOnDay.date.valueOf()
-				) ||
-					replacementsList[replacementsList.push({
-						date: tempReplacementsOnDay.date.valueOf(),
-						groups: [],
-					}) - 1];
-				const groupWithReplacements = replacementDay.groups.find(
-					(x: { group: string; }) => x.group === tempReplacement.group
-				) ||
-					replacementDay.groups[replacementDay.groups.push({
-						group: tempReplacement.group,
-						replacements: [],
-					}) - 1];
+				const replacementDay =
+					replacementsList.find(
+						(x: { date: number }) =>
+							x.date === tempReplacementsOnDay.date.valueOf(),
+					) ||
+					replacementsList[
+						replacementsList.push({
+							date: tempReplacementsOnDay.date.valueOf(),
+							groups: [],
+						}) - 1
+					];
+				const groupWithReplacements =
+					replacementDay.groups.find(
+						(x: { group: string }) => x.group === tempReplacement.group,
+					) ||
+					replacementDay.groups[
+						replacementDay.groups.push({
+							group: tempReplacement.group,
+							replacements: [],
+						}) - 1
+					];
 				groupWithReplacements.replacements.push({
 					num: tempReplacement.num,
 					new: {
@@ -490,6 +497,37 @@ class MPT_Parser {
 				}
 			});
 		return replacementsList;
+	}
+
+	public async getSpecialtiesList(): Promise<
+		{
+			name: string;
+			code: string;
+			url: string;
+		}[]
+	> {
+		const allSpecialties = (await axios.get("https://mpt.ru/sites-otdels/"))
+			.data;
+
+		const $ = cheerio.load(allSpecialties);
+		const list = $(".container-fluid > div:nth-child(1) > div:nth-child(3)");
+		const response: {
+			name: string;
+			code: string;
+			url: string;
+		}[] = [];
+		list.children().map((_index, element) => {
+			const elem = $(element).find("a");
+			const name = elem.text().trim();
+			response.push({
+				name,
+				code: name.match(
+					/(\d\d\.\d\d\.\d\d|Отделение первого курса)/,
+				)?.[0] as string,
+				url: (elem.attr("href") as string).trim(),
+			});
+		});
+		return response;
 	}
 }
 
