@@ -111,21 +111,11 @@ class MPT_Parser {
 		}
 	}
 
-	public async getLessons(inputHTML?: string): Promise<TParsedSchedule> {
-		const lessonsHTML =
-			inputHTML ||
-			(
-				await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
-					headers: {
-						cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
-							.join(
-								(Math.random().toString(36) + "00000000000000000").slice(2, 18),
-							)
-							.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
-					},
-				})
-			).data;
-		const $ = cheerio.load(lessonsHTML);
+	public async getLessons(): Promise<TParsedSchedule> {
+		const $ = await this.loadPage(
+			"https://www.mpt.ru/studentu/raspisanie-zanyatiy/",
+		);
+
 		const arrayWithAllFlow = $(
 			`body > div.page > main > div > div > div:nth-child(3) > div.col-xs-12.col-sm-12.col-md-7.col-md-pull-5 > div.tab-content`,
 		);
@@ -263,29 +253,10 @@ class MPT_Parser {
 		return specialtyList;
 	}
 
-	public async getReplacements(
-		inputHTML?: string,
-	): Promise<TParsedReplacements> {
-		const ReplacementsHTML =
-			inputHTML ||
-			(
-				await axios.get(
-					"https://www.mpt.ru/studentu/izmeneniya-v-raspisanii/",
-					{
-						headers: {
-							cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
-								.join(
-									(Math.random().toString(36) + "00000000000000000").slice(
-										2,
-										18,
-									),
-								)
-								.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
-						},
-					},
-				)
-			).data;
-		const $ = cheerio.load(ReplacementsHTML);
+	public async getReplacements(): Promise<TParsedReplacements> {
+		const $ = await this.loadPage(
+			"https://www.mpt.ru/studentu/izmeneniya-v-raspisanii/",
+		);
 		const replacementsParsedList = $(
 			$("body > div.page > main > div > div > div:nth-child(3)").children(),
 		);
@@ -413,13 +384,11 @@ class MPT_Parser {
 	public async getReplacementsOnDay(
 		date: Date = new Date(),
 	): Promise<IParsedReplacementOnDay[]> {
-		const replacementsHTML = (
-			await axios.get(
-				"https://www.mpt.ru/rasp-management/print-replaces.php?date=" +
-					moment(date).format("YYYY-MM-DD"),
-			)
-		).data;
-		const $ = cheerio.load(replacementsHTML);
+		const $ = await this.loadPage(
+			`https://www.mpt.ru/rasp-management/print-replaces.php?date=${moment(
+				date,
+			).format("YYYY-MM-DD")}`,
+		);
 		const replacementsList: IParsedReplacementOnDay[] = [];
 		$("body")
 			.children()
@@ -476,10 +445,7 @@ class MPT_Parser {
 	}
 
 	public async getSpecialtiesList(): Promise<ISpecialty[]> {
-		const allSpecialties = (await axios.get("https://mpt.ru/sites-otdels/"))
-			.data;
-
-		const $ = cheerio.load(allSpecialties);
+		const $ = await this.loadPage("https://mpt.ru/sites-otdels/");
 		const list = $(".container-fluid > div:nth-child(1) > div:nth-child(3)");
 		const response: ISpecialty[] = [];
 		list.children().map((_index, element) => {
