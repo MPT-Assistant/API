@@ -38,6 +38,21 @@ interface IParsedReplacement {
 	updated: number;
 }
 
+interface IParsedReplacementOnDay {
+	group: string;
+	replacements: Array<{
+		num: number;
+		old: {
+			name: string;
+			teacher: string;
+		};
+		new: {
+			name: string;
+			teacher: string;
+		};
+	}>;
+}
+
 interface IReplacementGroup {
 	group: string;
 	replacements: IParsedReplacement[];
@@ -50,4 +65,43 @@ interface IReplacementDay {
 
 type TParsedReplacements = IReplacementDay[];
 
-export { TParsedReplacements, TParsedSchedule, TWeek };
+interface ISpecialty {
+	name: string;
+	code: string;
+	url: string;
+}
+
+interface SpecialtySiteItem {
+	name: string;
+	url: string;
+	date: Date;
+}
+
+interface ISpecialtySiteGroupLeaders {
+	name: string;
+	roles: {
+		photo: string;
+		role: string;
+		name: string;
+	}[];
+}
+
+interface ISpecialtySite {
+	name: string;
+	code: string;
+	url: string;
+	importantInformation: SpecialtySiteItem[];
+	news: SpecialtySiteItem[];
+	examQuestions: SpecialtySiteItem[];
+	groupsLeaders: ISpecialtySiteGroupLeaders[];
+}
+
+export {
+	ISpecialty,
+	ISpecialtySite,
+	ISpecialtySiteGroupLeaders,
+	TParsedReplacements,
+	IParsedReplacementOnDay,
+	TParsedSchedule,
+	TWeek,
+};

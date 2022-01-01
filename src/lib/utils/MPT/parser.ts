@@ -3,6 +3,10 @@ import cheerio from "cheerio";
 import moment from "moment";
 
 import {
+	IParsedReplacementOnDay,
+	ISpecialty,
+	ISpecialtySite,
+	ISpecialtySiteGroupLeaders,
 	TParsedReplacements,
 	TParsedSchedule,
 	TWeek,
@@ -408,22 +412,9 @@ class MPT_Parser {
 		return replacementsList;
 	}
 
-	public async parseReplacementsOnDay(date: Date = new Date()): Promise<
-		Array<{
-			group: string;
-			replacements: Array<{
-				num: number;
-				old: {
-					name: string;
-					teacher: string;
-				};
-				new: {
-					name: string;
-					teacher: string;
-				};
-			}>;
-		}>
-	> {
+	public async parseReplacementsOnDay(
+		date: Date = new Date(),
+	): Promise<IParsedReplacementOnDay[]> {
 		const replacementsHTML = (
 			await axios.get(
 				"https://www.mpt.ru/rasp-management/print-replaces.php?date=" +
@@ -431,20 +422,7 @@ class MPT_Parser {
 			)
 		).data;
 		const $ = cheerio.load(replacementsHTML);
-		const replacementsList: Array<{
-			group: string;
-			replacements: Array<{
-				num: number;
-				old: {
-					name: string;
-					teacher: string;
-				};
-				new: {
-					name: string;
-					teacher: string;
-				};
-			}>;
-		}> = [];
+		const replacementsList: IParsedReplacementOnDay[] = [];
 		$("body")
 			.children()
 			.each(function replacementsListParser(
@@ -499,23 +477,13 @@ class MPT_Parser {
 		return replacementsList;
 	}
 
-	public async getSpecialtiesList(): Promise<
-		{
-			name: string;
-			code: string;
-			url: string;
-		}[]
-	> {
+	public async getSpecialtiesList(): Promise<ISpecialty[]> {
 		const allSpecialties = (await axios.get("https://mpt.ru/sites-otdels/"))
 			.data;
 
 		const $ = cheerio.load(allSpecialties);
 		const list = $(".container-fluid > div:nth-child(1) > div:nth-child(3)");
-		const response: {
-			name: string;
-			code: string;
-			url: string;
-		}[] = [];
+		const response: ISpecialty[] = [];
 		list.children().map((_index, element) => {
 			const elem = $(element).find("a");
 			const name = elem.text().trim();
@@ -527,6 +495,105 @@ class MPT_Parser {
 				url: (elem.attr("href") as string).trim(),
 			});
 		});
+		return response;
+	}
+
+	public async parseSpecialtySite(specialty: string): Promise<ISpecialtySite> {
+		const specialties = await this.getSpecialtiesList();
+		const regexp = new RegExp(
+			specialty.replace(/[-\\/\\^$*+?.()|[\]{}]/g, "\\$&"),
+			"ig",
+		);
+
+		const specialtyInfo = specialties.find((x) => regexp.test(x.name));
+
+		if (!specialtyInfo) {
+			throw new Error("Specialty not found");
+		}
+
+		const response: ISpecialtySite = {
+			...specialtyInfo,
+			importantInformation: [],
+			news: [],
+			examQuestions: [],
+			groupsLeaders: [],
+		};
+
+		const specialtySite = (await axios.get(specialtyInfo.url)).data;
+		const $ = cheerio.load(specialtySite);
+
+		const importantInformation = $(
+			".col-sm-8 > div:nth-child(1) > ul:nth-child(2)",
+		);
+		importantInformation.children().map((_index, element) => {
+			const elem = $(element);
+			const news = elem.find("a");
+			const date = elem.find("div").text().trim();
+			const name = news.text().trim();
+			const url = "https://mpt.ru" + (news.attr("href") as string).trim();
+			response.importantInformation.push({
+				name,
+				url,
+				date: moment(date, "DD.MM.YYYY").toDate(),
+			});
+		});
+
+		const groupsLeadersList = $("div.block_no-margin:nth-child(5)").find(
+			".tab-content",
+		);
+		groupsLeadersList.children().map((_index, element) => {
+			const elem = $(element);
+			const name = elem.find("h3").text().trim();
+
+			const groupInfo: ISpecialtySiteGroupLeaders = {
+				name,
+				roles: [],
+			};
+
+			elem.find("table").map((_index, element) => {
+				const elem = $(element);
+				const [photo, role, name] = elem.find("tr").children();
+				groupInfo.roles.push({
+					photo: ("https://mpt.ru" +
+						$(photo).find("img").attr("src")) as string,
+					role: $(role).text().trim(),
+					name: $(name).text().trim(),
+				});
+			});
+
+			if (groupInfo.roles.length > 0) {
+				response.groupsLeaders.push(groupInfo);
+			}
+		});
+
+		const news = $(".col-sm-8 > div:nth-child(4) > ul:nth-child(2)");
+		news.children().map((_index, element) => {
+			const elem = $(element);
+			const news = elem.find("a");
+			const date = elem.find("div").text().trim();
+			const name = news.text().trim();
+			const url = "https://mpt.ru" + (news.attr("href") as string).trim();
+			response.news.push({
+				name,
+				url,
+				date: moment(date, "DD.MM.YYYY").toDate(),
+			});
+		});
+
+		const examQuestions = $(".table-hover > tbody:nth-child(2)");
+		examQuestions.children().map((_index, element) => {
+			const elem = $(element);
+			const document = elem.find("a");
+			const name = document.text().trim();
+			const url = "https://mpt.ru" + (document.attr("href") as string).trim();
+			const date = elem.find("td:nth-child(2)").text().trim();
+			response.examQuestions.push({
+				name,
+				url,
+				date: moment(date, "DD.MM.YYYY HH:mm:ss").toDate(),
+			});
+		});
+
 		return response;
 	}
 }
