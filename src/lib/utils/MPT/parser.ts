@@ -20,7 +20,7 @@ const days = [
 	"Четверг",
 	"Пятница",
 	"Суббота",
-];
+] as const;
 
 const parseTeachers = (
 	input: string,
@@ -113,7 +113,7 @@ class MPT_Parser {
 		}
 	}
 
-	public async parseLessons(inputHTML?: string): Promise<TParsedSchedule> {
+	public async getLessons(inputHTML?: string): Promise<TParsedSchedule> {
 		const lessonsHTML =
 			inputHTML ||
 			(
@@ -265,7 +265,7 @@ class MPT_Parser {
 		return specialtyList;
 	}
 
-	public async parseReplacements(
+	public async getReplacements(
 		inputHTML?: string,
 	): Promise<TParsedReplacements> {
 		const ReplacementsHTML =
@@ -412,7 +412,7 @@ class MPT_Parser {
 		return replacementsList;
 	}
 
-	public async parseReplacementsOnDay(
+	public async getReplacementsOnDay(
 		date: Date = new Date(),
 	): Promise<IParsedReplacementOnDay[]> {
 		const replacementsHTML = (
@@ -498,7 +498,7 @@ class MPT_Parser {
 		return response;
 	}
 
-	public async parseSpecialtySite(
+	public async getSpecialtySite(
 		specialty: string,
 		specialtiesList?: ISpecialty[],
 	): Promise<ISpecialtySite> {

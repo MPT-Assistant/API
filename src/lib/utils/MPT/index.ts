@@ -7,7 +7,7 @@ export default class MPT {
 	public readonly parser = parser;
 
 	public async updateGroupsList(): Promise<void> {
-		const schedule = await this.parser.parseLessons();
+		const schedule = await this.parser.getLessons();
 		for (const specialty of schedule) {
 			for (const group of specialty.groups) {
 				const response = await internalUtils.DB.models.group.updateOne(
@@ -31,7 +31,7 @@ export default class MPT {
 	}
 
 	public async updateReplacementsList(): Promise<void> {
-		const replacements = await this.parser.parseReplacements();
+		const replacements = await this.parser.getReplacements();
 		const insertedDocuments = [];
 
 		for (const dayReplacements of replacements) {
