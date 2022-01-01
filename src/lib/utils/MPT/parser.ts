@@ -1,5 +1,5 @@
 import axios from "axios";
-import cheerio from "cheerio";
+import cheerio, { CheerioAPI } from "cheerio";
 import moment from "moment";
 
 import {
@@ -76,34 +76,32 @@ const fixNonDecodeString = (input: string): string => {
 };
 
 class MPT_Parser {
-	constructor() {
-		return this;
+	private generateCookie(): string {
+		const array = Array(8 + 1);
+		const separator = (Math.random().toString(36) + "00000000000000000").slice(
+			2,
+			18,
+		);
+		return `PHPSESSID=MPT_Assistant#${array.join(separator).slice(0, 8)};`;
 	}
 
-	public async getCurrentWeek(inputHTML?: string): Promise<TWeek> {
-		const lessonsHTML =
-			inputHTML ||
-			(
-				await axios.get("https://www.mpt.ru/studentu/raspisanie-zanyatiy/", {
-					headers: {
-						cookie: `PHPSESSID=MPT_Assistant#${Array(8 + 1)
-							.join(
-								(Math.random().toString(36) + "00000000000000000").slice(2, 18),
-							)
-							.slice(0, 8)};`, // Bypassing an error bad request (occurs with a large number of requests from one IP)
-					},
-				})
-			).data;
-		const $ = cheerio.load(lessonsHTML);
-		const parsedWeek = $(
-			$(
-				$(
-					"body > div.page > main > div > div > div:nth-child(3) > div.col-xs-12.col-sm-12.col-md-7.col-md-pull-5",
-				).children()[1],
-			)[0],
-		)
-			.text()
-			.trim();
+	private async loadPage(url: string): Promise<CheerioAPI> {
+		const html = (
+			await axios.get(url, {
+				headers: {
+					cookie: this.generateCookie(), // Bypassing an error bad request (occurs with a large number of requests from one IP)
+				},
+			})
+		).data;
+
+		return cheerio.load(html);
+	}
+
+	public async getCurrentWeek(): Promise<TWeek> {
+		const $ = await this.loadPage(
+			"https://www.mpt.ru/studentu/raspisanie-zanyatiy/",
+		);
+		const parsedWeek = $("span.label").text().trim();
 		if (parsedWeek === "Знаменатель") {
 			return parsedWeek;
 		} else if (parsedWeek === "Числитель") {
