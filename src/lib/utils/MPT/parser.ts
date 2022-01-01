@@ -490,7 +490,7 @@ class MPT_Parser {
 			response.push({
 				name,
 				code: name.match(
-					/(\d\d\.\d\d\.\d\d|Отделение первого курса)/,
+					/(\d\d\.\d\d\.\d\d(?:(?:\([А-Я]+\))?)|Отделение первого курса)/g,
 				)?.[0] as string,
 				url: (elem.attr("href") as string).trim(),
 			});
@@ -498,14 +498,20 @@ class MPT_Parser {
 		return response;
 	}
 
-	public async parseSpecialtySite(specialty: string): Promise<ISpecialtySite> {
-		const specialties = await this.getSpecialtiesList();
+	public async parseSpecialtySite(
+		specialty: string,
+		specialtiesList?: ISpecialty[],
+	): Promise<ISpecialtySite> {
+		if (!specialtiesList) {
+			specialtiesList = await this.getSpecialtiesList();
+		}
+
 		const regexp = new RegExp(
 			specialty.replace(/[-\\/\\^$*+?.()|[\]{}]/g, "\\$&"),
 			"ig",
 		);
 
-		const specialtyInfo = specialties.find((x) => regexp.test(x.name));
+		const specialtyInfo = specialtiesList.find((x) => regexp.test(x.name));
 
 		if (!specialtyInfo) {
 			throw new Error("Specialty not found");
