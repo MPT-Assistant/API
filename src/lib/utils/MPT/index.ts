@@ -1,4 +1,5 @@
 import { SHA512 } from "crypto-js";
+import { ISpecialty } from "../../../typings/mpt";
 
 import internalUtils from "../index";
 import parser from "./parser";
@@ -8,13 +9,29 @@ export default class MPT {
 
 	public async updateGroupsList(): Promise<void> {
 		const schedule = await this.parser.getLessons();
+		const specialties = await this.parser.getSpecialtiesList();
+
 		for (const specialty of schedule) {
 			for (const group of specialty.groups) {
+				let accurateSpecialty = specialties.find(
+					(x) => x.code === specialty.name,
+				);
+
+				if (!accurateSpecialty) {
+					const [groupSpecialtyCode] = group.name.match(
+						/[А-Я]+/i,
+					) as RegExpMatchArray;
+
+					accurateSpecialty = specialties.find(
+						(x) => x.code === specialty.name + `(${groupSpecialtyCode})`,
+					) as ISpecialty;
+				}
+
 				const response = await internalUtils.DB.models.group.updateOne(
 					{ name: group.name },
 					{
 						name: group.name,
-						specialty: specialty.name,
+						specialty: accurateSpecialty.code,
 						schedule: group.days,
 					},
 				);
@@ -22,7 +39,7 @@ export default class MPT {
 				if (response.matchedCount === 0) {
 					await internalUtils.DB.models.group.insertMany({
 						name: group.name,
-						specialty: specialty.name,
+						specialty: accurateSpecialty.code,
 						schedule: group.days,
 					});
 				}

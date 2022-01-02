@@ -4,7 +4,6 @@ import moment from "moment";
 
 import {
 	IDay,
-	IParsedGroup,
 	IParsedReplacementOnDay,
 	IParsedSpecialty,
 	ISpecialty,
@@ -151,7 +150,9 @@ class MPT_Parser {
 
 				const groupsNames = this.fixNonDecodeString(
 					elem.find("h3").text().trim(),
-				).split(", ");
+				)
+					.replace("Группа ", "")
+					.split(", ");
 
 				const groupWeekSchedule: IDay[] = [];
 
