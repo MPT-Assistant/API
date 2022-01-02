@@ -469,7 +469,7 @@ class MPT_Parser {
 		const $ = cheerio.load(specialtySite);
 
 		const importantInformation = $(
-			".col-sm-8 > div:nth-child(1) > ul:nth-child(2)",
+			".col-sm-8 > div:contains(Важная информация!) > ul",
 		);
 		importantInformation.children().map((_index, element) => {
 			const elem = $(element);
@@ -512,7 +512,7 @@ class MPT_Parser {
 			}
 		});
 
-		const news = $(".col-sm-8 > div:nth-child(4) > ul:nth-child(2)");
+		const news = $(".col-sm-8 > div:contains(Новости) > ul");
 		news.children().map((_index, element) => {
 			const elem = $(element);
 			const news = elem.find("a");
