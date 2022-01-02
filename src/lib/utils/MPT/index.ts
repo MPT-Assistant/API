@@ -45,6 +45,26 @@ export default class MPT {
 				}
 			}
 		}
+
+		for (const specialty of specialties) {
+			const advancedSpecialtyInfo = await this.parser.getSpecialtySite(
+				specialty.name,
+				specialties,
+			);
+
+			const response = await internalUtils.DB.models.specialty.updateOne(
+				{
+					code: advancedSpecialtyInfo.code,
+				},
+				advancedSpecialtyInfo,
+			);
+
+			if (response.matchedCount === 0) {
+				await internalUtils.DB.models.specialty.insertMany(
+					advancedSpecialtyInfo,
+				);
+			}
+		}
 	}
 
 	public async updateReplacementsList(): Promise<void> {

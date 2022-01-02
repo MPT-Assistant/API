@@ -484,9 +484,9 @@ class MPT_Parser {
 			});
 		});
 
-		const groupsLeadersList = $("div.block_no-margin:nth-child(5)").find(
-			".tab-content",
-		);
+		const groupsLeadersList = $(
+			"div.block_no-margin:contains(Активы групп)",
+		).find(".tab-content");
 		groupsLeadersList.children().map((_index, element) => {
 			const elem = $(element);
 			const name = elem.find("h3").text().trim();

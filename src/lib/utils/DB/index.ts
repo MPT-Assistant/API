@@ -18,6 +18,14 @@ class DB {
 	public readonly timetable = timetable;
 	public readonly schemes = schemes;
 	public readonly models = {
+		specialty: typedModel(
+			"specialty",
+			schemes.specialtySchema,
+			"specialties",
+			undefined,
+			undefined,
+			this.connection,
+		),
 		group: typedModel(
 			"group",
 			schemes.groupSchema,

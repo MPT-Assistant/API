@@ -27,6 +27,49 @@ const groupSchema = createSchema(
 	{ versionKey: false },
 );
 
+const specialtySiteItemSchema = createSchema(
+	{
+		name: Type.string({ required: true }),
+		url: Type.string({ required: true }),
+		date: Type.date({ required: true }),
+	},
+	{ _id: false },
+);
+
+const specialtyGroupLeaderSchema = createSchema(
+	{
+		name: Type.string({ required: true }),
+		roles: Type.array({ required: true }).of(
+			createSchema(
+				{
+					photo: Type.string({ required: true }),
+					role: Type.string({ required: true }),
+					name: Type.string({ required: true }),
+				},
+				{ _id: false },
+			),
+		),
+	},
+	{ _id: false },
+);
+
+const specialtySchema = createSchema(
+	{
+		name: Type.string({ required: true }),
+		code: Type.string({ required: true, unique: true }),
+		url: Type.string({ required: true }),
+		importantInformation: Type.array({ required: true }).of(
+			specialtySiteItemSchema,
+		),
+		news: Type.array({ required: true }).of(specialtySiteItemSchema),
+		examQuestions: Type.array({ required: true }).of(specialtySiteItemSchema),
+		groupsLeaders: Type.array({ required: true }).of(
+			specialtyGroupLeaderSchema,
+		),
+	},
+	{ versionKey: false },
+);
+
 const replacementSchema = createSchema(
 	{
 		date: Type.date({ required: true }),
@@ -69,6 +112,7 @@ const infoSchema = createSchema(
 
 export default {
 	infoSchema,
+	specialtySchema,
 	timetableSchema,
 	groupSchema,
 	replacementSchema,
