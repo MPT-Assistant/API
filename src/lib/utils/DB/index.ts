@@ -16,7 +16,16 @@ class DB {
 	);
 
 	public readonly timetable = timetable;
+	public readonly schemes = schemes;
 	public readonly models = {
+		specialty: typedModel(
+			"specialty",
+			schemes.specialtySchema,
+			"specialties",
+			undefined,
+			undefined,
+			this.connection,
+		),
 		group: typedModel(
 			"group",
 			schemes.groupSchema,
@@ -29,6 +38,14 @@ class DB {
 			"replacement",
 			schemes.replacementSchema,
 			"replacements",
+			undefined,
+			undefined,
+			this.connection,
+		),
+		info: typedModel(
+			"info",
+			schemes.infoSchema,
+			"info",
 			undefined,
 			undefined,
 			this.connection,
