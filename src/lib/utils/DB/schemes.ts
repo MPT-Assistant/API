@@ -13,7 +13,6 @@ const daySchema = createSchema(
 	{
 		num: Type.number({ required: true }),
 		place: Type.string({ required: true }),
-		name: Type.string({ required: true }),
 		lessons: Type.array({ required: true }).of(lessonSchema),
 	},
 	{ _id: false },

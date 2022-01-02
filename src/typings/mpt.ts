@@ -9,7 +9,6 @@ interface ILesson {
 interface IDay {
 	num: number;
 	place: string;
-	name: string;
 	lessons: ILesson[];
 }
 
@@ -97,6 +96,9 @@ interface ISpecialtySite {
 }
 
 export {
+	IDay,
+	IParsedSpecialty,
+	IParsedGroup,
 	ISpecialty,
 	ISpecialtySite,
 	ISpecialtySiteGroupLeaders,
